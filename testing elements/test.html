@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script type="module">
+        import { randomScrambleForEvent } from "https://cdn.cubing.net/v0/js/cubing/scramble";
+        import { Alg } from "https://cdn.cubing.net/v0/js/cubing/alg";
+
+        let scramble = await randomScrambleForEvent("333");
+        try {
+            scramble = Alg.fromString(scramble).expand().experimentalSimplify().toString();
+        } catch(e) {}
+        
+        document.getElementById("cubedisplay").scramble = scramble;
+        document.getElementById("scramblestring").innerText = scramble;
+    </script>
+    <script src="https://cdn.cubing.net/v0/js/scramble-display" type="module"></script>
+</head>
+
+<body>
+    <h1 id="scramblestring"></h1>
+    <scramble-display id=cubedisplay></scramble-display>
+</body>
+
+</html>

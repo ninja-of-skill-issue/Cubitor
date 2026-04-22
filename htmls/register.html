@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Cubing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@100;300;400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="login-screen">
+    <div class="login-card">
+        <div class="login-logo">Cubing</div>
+        <p class="login-subtitle">Join the community of speedcubers.</p>
+
+        <!-- Always visible: Username -->
+        <div class="form-group" style="margin-bottom:24px;">
+            <label for="username">USERNAME</label>
+            <input type="text" id="username" class="form-input" placeholder="cubemaster" required>
+        </div>
+
+        <!-- Method Selection -->
+        <div id="method-picker">
+            <label class="form-label"
+                style="text-align: left; display: block; margin-bottom: 12px; font-family: 'Inter', sans-serif; color: #a1a1aa; font-size: 12px; font-weight: 600; letter-spacing: 0.5px;">CHOOSE
+                YOUR METHOD</label>
+            <button class="method-btn" onclick="continueWithGoogle()">
+                <svg width="20" height="20" viewBox="0 0 18 18">
+                    <path fill="#4285F4"
+                        d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.49h4.84c-.21 1.12-.84 2.07-1.79 2.7l2.78 2.16c1.63-1.5 2.57-3.71 2.57-6.51z" />
+                    <path fill="#34A853"
+                        d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.78-2.16c-.77.52-1.76.83-3.18.83-2.43 0-4.5-1.64-5.23-3.84H.91v2.28C2.39 15.65 5.43 18 9 18z" />
+                    <path fill="#FBBC05"
+                        d="M3.77 10.65c-.19-.52-.29-1.08-.29-1.65s.1-1.13.29-1.65V5.07H.91C.33 6.25 0 7.59 0 9s.33 2.75.91 3.93l2.86-2.28z" />
+                    <path fill="#EA4335"
+                        d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.47.89 11.43 0 9 0 5.43 0 2.39 2.35.91 5.07l2.86 2.28C4.5 5.22 6.57 3.58 9 3.58z" />
+                </svg>
+                Sign up with Google
+            </button>
+            <button class="method-btn" onclick="showEmailForm()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                    <polyline points="22,6 12,13 2,6" />
+                </svg>
+                Sign up with Email
+            </button>
+        </div>
+
+        <!-- Hidden Email Form -->
+        <form id="register-form" class="hidden">
+            <div class="form-group">
+                <label for="email">EMAIL ADDRESS</label>
+                <input type="email" id="email" class="form-input" placeholder="name@example.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">PASSWORD</label>
+                <input type="password" id="password" class="form-input" placeholder="••••••••" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm-password">CONFIRM PASSWORD</label>
+                <input type="password" id="confirm-password" class="form-input" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="modal-btn primary login-btn">Complete Account</button>
+            <button type="button" class="login-link"
+                style="background:none; border:none; width:100%; border-top:1px solid #27272a; margin-top:12px; padding-top:12px;"
+                onclick="hideEmailForm()">Change method</button>
+        </form>
+
+        <div class="login-footer" style="justify-content: center; margin-top: 24px;">
+            <a href="login.html" class="login-link">Already have an account? Log In</a>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        function showEmailForm() {
+            const username = document.getElementById('username').value;
+            if (!username) {
+                alert("Please enter a username first!");
+                return;
+            }
+            document.getElementById('method-picker').classList.add('hidden');
+            document.getElementById('register-form').classList.remove('hidden');
+        }
+
+        function hideEmailForm() {
+            document.getElementById('method-picker').classList.remove('hidden');
+            document.getElementById('register-form').classList.add('hidden');
+        }
+
+        async function continueWithGoogle() {
+            const username = document.getElementById('username').value;
+            if (!username) {
+                alert("Please enter a username first!");
+                return;
+            }
+
+            console.log("Attempting Google Register via api.js...");
+            const googleData = {
+                username: username,
+                method: "google",
+                fakeToken: "google_oauth_token_12345"
+            };
+
+            try {
+                const result = await postData(GOOGLE_REGISTER_URL, googleData);
+                console.log("Google Registration successful:", result);
+                window.location.href = "main_page.html";
+            } catch (error) {
+                console.error("Google Register Error:", error.message);
+                alert("Google Register failed: " + error.message);
+            }
+        }
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (password !== confirmPassword) {
+                alert("Passwords do not match!");
+                return;
+            }
+
+            const registerData = {
+                username: username,
+                email: email,
+                password: password,
+                method: "email"
+            };
+
+            try {
+                const result = await postData(REGISTER_URL, registerData);
+                alert("Account created successfully! Please log in.");
+                // Redirect to login with pre-fill data
+                window.location.href = `login.html?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}`;
+            } catch (error) {
+                console.error("Registration Error:", error.message);
+                console.error(error)
+                alert("Registration failed: " + error.message);
+            }
+        });
+    </script>
+</body>
+
+</html>
