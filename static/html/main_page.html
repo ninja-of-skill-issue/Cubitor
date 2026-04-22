@@ -924,19 +924,54 @@
             </div>
 
             <div id="learning-tutorials-panel" class="sub-panel">
-                <div
-                    style="padding: 40px; text-align: center; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px dashed var(--border-item); margin-top: 20px;">
-                    <div
-                        style="width: 64px; height: 64px; background: rgba(34,211,238,0.1); color: #22d3ee; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-                        </svg>
+                <!-- Grid View -->
+                <div id="tutorial-grid-view">
+                    <div class="tutorial-grid">
+                        <!-- Notation Tutorial Card -->
+                        <div class="tutorial-card" onclick="openTutorial('notation')">
+                            <div class="tutorial-icon-container" style="background: rgba(34,211,238,0.1); color: #22d3ee;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                                </svg>
+                            </div>
+                            <div class="tutorial-info">
+                                <h3>Cube Notation</h3>
+                                <p>Master the standard language used to describe cube moves and algorithms.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Coming Soon Card -->
+                        <div class="tutorial-card" style="opacity: 0.6; cursor: default;">
+                            <div class="tutorial-icon-container" style="background: rgba(255,255,255,0.05); color: var(--text-muted);">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                </svg>
+                            </div>
+                            <div class="tutorial-info">
+                                <h3>Advanced F2L</h3>
+                                <p>Coming soon: Efficient pair insertion techniques.</p>
+                            </div>
+                        </div>
                     </div>
-                    <h3 style="color: #fff; margin-bottom: 8px;">Interactive Tutorials</h3>
-                    <p style="color: var(--text-secondary); max-width: 320px; margin: 0 auto;">Guided lessons and
-                        step-by-step reconstructions are coming soon to help you master new techniques.</p>
+                </div>
+
+                <!-- Article View (Hidden by default) -->
+                <div id="tutorial-article-view" style="display: none;">
+                    <div class="article-header" style="background: transparent; padding: 0 0 20px 0;">
+                        <button class="top-bar-btn" onclick="backToTutorials()" style="margin-right: 15px; background: rgba(255,255,255,0.05);">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <polyline points="15 18 9 12 15 6"></polyline>
+                            </svg>
+                            Back
+                        </button>
+                        <h2 id="article-view-title" style="margin: 0; font-size: 22px;">Tutorial Title</h2>
+                    </div>
+                    <div id="article-view-body" class="article-body" style="padding: 0;">
+                        <!-- Content injected via JS -->
+                    </div>
                 </div>
             </div>
 
@@ -2759,6 +2794,141 @@
             if (element) element.classList.add('active');
 
             updateSubNavHighlight('learning');
+        }
+
+        function openTutorial(id) {
+            const gridView = document.getElementById('tutorial-grid-view');
+            const articleView = document.getElementById('tutorial-article-view');
+            const title = document.getElementById('article-view-title');
+            const body = document.getElementById('article-view-body');
+            
+            if (id === 'notation') {
+                title.innerText = "Cube Notation Guide";
+                body.innerHTML = `
+                    <p>Notation is the standard language used by speedcubers to describe moves, scrambles, and algorithms. Each letter represents a 90-degree clockwise turn of a specific face.</p>
+                    
+                    <h3>The "Clockwise" Rule</h3>
+                    <p>A move is considered <strong>clockwise</strong> if it would look clockwise if you were looking <strong>directly at that face</strong>. This is why opposite faces seem to move in "different" directions:</p>
+                    <ul>
+                        <li><strong>R</strong> (Right) moves the layer <strong>upwards</strong> (away from you).</li>
+                        <li><strong>L</strong> (Left) moves the layer <strong>downwards</strong> (towards you).</li>
+                    </ul>
+                    <p>Even though they move in opposite physical directions, both are 90-degree clockwise turns relative to their own center face.</p>
+
+                    <h3>Basic Face Moves</h3>
+                    <p>The six main faces are <strong>R</strong> (Right), <strong>L</strong> (Left), <strong>U</strong> (Up), <strong>D</strong> (Down), <strong>F</strong> (Front), and <strong>B</strong> (Back).</p>
+                    
+                    <div class="notation-showcase">
+                        <div class="notation-card">
+                            <div class="notation-symbol">R</div>
+                            <div class="notation-desc">Right layer clockwise</div>
+                            <div class="notation-viz">
+                                <nxn-isometric-view size="3" scramble="R" style="width: 100%; height: 100%;"></nxn-isometric-view>
+                            </div>
+                        </div>
+                        <div class="notation-card">
+                            <div class="notation-symbol">L</div>
+                            <div class="notation-desc">Left layer clockwise</div>
+                            <div class="notation-viz">
+                                <nxn-isometric-view size="3" scramble="L" style="width: 100%; height: 100%;"></nxn-isometric-view>
+                            </div>
+                        </div>
+                        <div class="notation-card">
+                            <div class="notation-symbol">U</div>
+                            <div class="notation-desc">Upper layer clockwise</div>
+                            <div class="notation-viz">
+                                <nxn-isometric-view size="3" scramble="U" style="width: 100%; height: 100%;"></nxn-isometric-view>
+                            </div>
+                        </div>
+                        <div class="notation-card">
+                            <div class="notation-symbol">D</div>
+                            <div class="notation-desc">Down layer clockwise</div>
+                            <div class="notation-viz">
+                                <nxn-isometric-view size="3" scramble="D" style="width: 100%; height: 100%;"></nxn-isometric-view>
+                            </div>
+                        </div>
+                        <div class="notation-card">
+                            <div class="notation-symbol">F</div>
+                            <div class="notation-desc">Front layer clockwise</div>
+                            <div class="notation-viz">
+                                <nxn-isometric-view size="3" scramble="F" style="width: 100%; height: 100%;"></nxn-isometric-view>
+                            </div>
+                        </div>
+                        <div class="notation-card">
+                            <div class="notation-symbol">B</div>
+                            <div class="notation-desc">Back layer clockwise</div>
+                            <div class="notation-viz">
+                                <nxn-isometric-view size="3" scramble="B" style="width: 100%; height: 100%;"></nxn-isometric-view>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>Prime (') & Double (2) Moves</h3>
+                    <p><strong>Prime ('):</strong> A letter followed by an apostrophe (e.g., <strong>R'</strong>) means a 90-degree <strong>counter-clockwise</strong> turn. Pronounced "R prime".</p>
+                    <p><strong>Double (2):</strong> A letter followed by a 2 (e.g., <strong>U2</strong>) means a <strong>180-degree</strong> turn. Direction doesn't matter for the final state.</p>
+
+                    <h3>Wide Moves (w)</h3>
+                    <p>A letter followed by a "w" (or written in lowercase, like <strong>r</strong>) means to turn <strong>two layers</strong> at once. For example, <strong>Rw</strong> turns both the Right layer and the middle layer next to it.</p>
+                    <div class="notation-showcase">
+                        <div class="notation-card">
+                            <div class="notation-symbol">Rw</div>
+                            <div class="notation-desc">Right + Middle layer</div>
+                            <div class="notation-viz">
+                                <nxn-isometric-view size="3" scramble="Rw" style="width: 100%; height: 100%;"></nxn-isometric-view>
+                            </div>
+                        </div>
+                        <div class="notation-card">
+                            <div class="notation-symbol">Uw</div>
+                            <div class="notation-desc">Up + Middle layer</div>
+                            <div class="notation-viz">
+                                <nxn-isometric-view size="3" scramble="Uw" style="width: 100%; height: 100%;"></nxn-isometric-view>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>Middle Layer Moves</h3>
+                    <p>These moves turn only the central slice of the cube:</p>
+                    <ul>
+                        <li><strong>M (Middle):</strong> Slice between L and R. Follows the direction of <strong>L</strong>.</li>
+                        <li><strong>E (Equator):</strong> Slice between U and D. Follows the direction of <strong>D</strong>.</li>
+                        <li><strong>S (Standing):</strong> Slice between F and B. Follows the direction of <strong>F</strong>.</li>
+                    </ul>
+                    <div class="notation-showcase">
+                        <div class="notation-card">
+                            <div class="notation-symbol">M</div>
+                            <div class="notation-desc">Middle Slice</div>
+                            <div class="notation-viz">
+                                <nxn-isometric-view size="3" scramble="M" style="width: 100%; height: 100%;"></nxn-isometric-view>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>Cube Rotations</h3>
+                    <p>Rotations move the <strong>entire cube</strong> without changing its state. They are used to change which face you are looking at:</p>
+                    <ul>
+                        <li><strong>x:</strong> Rotate the cube on the R axis (look "up").</li>
+                        <li><strong>y:</strong> Rotate the cube on the U axis (look "right").</li>
+                        <li><strong>z:</strong> Rotate the cube on the F axis (tilt "clockwise").</li>
+                    </ul>
+                `;
+            }
+            
+            gridView.style.display = 'none';
+            articleView.style.display = 'block';
+            
+            // Scroll back to top of the sub-panel
+            const panel = document.getElementById('learning-tutorials-panel');
+            if (panel) panel.scrollTop = 0;
+        }
+
+        function backToTutorials() {
+            document.getElementById('tutorial-grid-view').style.display = 'block';
+            document.getElementById('tutorial-article-view').style.display = 'none';
+        }
+
+        function closeTutorial() {
+            // Deprecated - using backToTutorials for inline view
+            backToTutorials();
         }
 
         function switchSettingsPanel(panelName, element) {
@@ -6576,6 +6746,7 @@
             </div>
         </div>
     </div>
+    <!-- Removed Article Overlay Modal -->
 </body>
 
 </html>
