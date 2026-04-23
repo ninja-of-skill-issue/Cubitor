@@ -43,7 +43,7 @@
     <script src="../js/dataget.js?v=12"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script src="../js/cubing_logic.js"></script>
+    <script src="../js/cubing logic/cubing_logic.js"></script>
     <script type="module">
         import { randomScrambleForEvent } from "https://cdn.cubing.net/v0/js/cubing/scramble";
         import { Alg } from "https://cdn.cubing.net/v0/js/cubing/alg";
@@ -57,9 +57,9 @@
         }
     </script>
     <script src="https://cdn.cubing.net/js/cubing" type="module"></script>
-    <script src="../js/custom_scramble_display.js"></script>
-    <script src="../js/nxn_top_view.js"></script>
-    <script src="../js/nxn_isometric_view.js"></script>
+    <script src="../js/cubing logic/custom_scramble_display.js"></script>
+    <script src="../js/cubing logic/nxn_top_view.js"></script>
+    <script src="../js/cubing logic/nxn_isometric_view.js"></script>
     <style>
         scramble-display,
         custom-scramble-display,
@@ -143,6 +143,196 @@
             color: #fff;
             border-color: var(--accent-primary);
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .dropdown-subtitle {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 16px 16px 8px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .sort-option-btn.dynamic-set {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-right: 12px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .delete-set-btn {
+            opacity: 0;
+            color: var(--text-muted);
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 8px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .sort-option-btn:hover .delete-set-btn {
+            opacity: 0.6;
+        }
+
+        .delete-set-btn:hover {
+            opacity: 1 !important;
+            color: #ff4d4d;
+            background: rgba(255, 77, 77, 0.15);
+            transform: scale(1.1);
+        }
+
+        #add-set-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent-primary) !important;
+            font-weight: 600;
+            margin-top: 4px;
+            padding: 12px 16px;
+            transition: all 0.2s;
+        }
+
+        #add-set-btn:hover {
+            background: rgba(16, 185, 129, 0.08);
+            letter-spacing: 0.5px;
+        }
+
+        #add-set-divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--border-item), transparent);
+            margin: 12px 0;
+            border: none;
+        }
+
+        /* Unified Action Modal Styles */
+        .action-modal .modal-content {
+            max-width: 380px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .action-modal .modal-header {
+            padding: 24px 24px 12px;
+            border-bottom: none;
+        }
+
+        .action-modal .modal-header h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .action-modal .modal-body {
+            padding: 12px 24px 24px;
+        }
+
+        .action-modal input[type="text"] {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-item);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .action-modal input[type="text"]:focus {
+            border-color: var(--accent-primary);
+            background: rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .action-modal .modal-footer {
+            padding: 0 24px 24px;
+            display: flex;
+            gap: 12px;
+            border-top: none;
+        }
+
+        .btn-action-primary {
+            flex: 1;
+            background: var(--accent-primary);
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-action-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-action-secondary {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-item);
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-action-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .set-actions {
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .sort-option-btn:hover .set-actions {
+            opacity: 0.8;
+        }
+
+        .edit-set-btn, .delete-set-btn {
+            color: var(--text-muted);
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .edit-set-btn:hover {
+            color: var(--accent-primary);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .delete-set-btn:hover {
+            color: #ff4d4d;
+            background: rgba(255, 77, 77, 0.1);
         }
     </style>
 </head>
@@ -872,7 +1062,14 @@
                                     <button class="sort-option-btn" onclick="selectAlgSet('PLL')">PLL</button>
                                     <button class="sort-option-btn" onclick="selectAlgSet('OLL')">OLL</button>
                                     <button class="sort-option-btn" onclick="selectAlgSet('F2L')">F2L</button>
-                                    <button class="sort-option-btn" onclick="selectAlgSet('User')">User Custom</button>
+                                    <hr id="add-set-divider">
+                                    <button class="sort-option-btn" id="add-set-btn" onclick="openAddSetModal()">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        </svg>
+                                        Add New Set
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -911,6 +1108,7 @@
                                     <button class="sort-option-btn" onclick="setAlgFilter('none')">Show All</button>
                                     <button class="sort-option-btn"
                                         onclick="setAlgFilter('favorites')">Favorites</button>
+                                    <button class="sort-option-btn" onclick="setAlgFilter('custom')">User Custom</button>
                                     <button class="sort-option-btn" onclick="setAlgFilter('recent')">Recent</button>
                                 </div>
                             </div>
@@ -1744,6 +1942,7 @@
                         <div class="font-option" data-font="elegant" onclick="setFont('elegant', this)">Elegant</div>
                         <div class="font-option" data-font="tech" onclick="setFont('tech', this)">Tech</div>
                         <div class="font-option" data-font="mono" onclick="setFont('mono', this)">Mono</div>
+                        <div class="font-option" data-font="consolas" onclick="setFont('consolas', this)">Consolas</div>
                     </div>
                 </div>
             </div>
@@ -1961,7 +2160,7 @@
                                 <button class="sort-option-btn" onclick="setAlgCategory('PLL')">PLL</button>
                                 <button class="sort-option-btn" onclick="setAlgCategory('OLL')">OLL</button>
                                 <button class="sort-option-btn" onclick="setAlgCategory('F2L')">F2L</button>
-                                <button class="sort-option-btn" onclick="setAlgCategory('User')">User Custom</button>
+                                <button class="sort-option-btn" onclick="setAlgCategory('User')">Other</button>
                             </div>
                         </div>
                     </div>
@@ -3238,7 +3437,7 @@
 
         function setFont(fontName, element) {
             // Remove previous font classes
-            document.body.classList.remove('font-elegant', 'font-tech', 'font-mono');
+            document.body.classList.remove('font-elegant', 'font-tech', 'font-mono', 'font-consolas');
 
             // Add new font class (except for default)
             if (fontName !== 'default') {
@@ -6214,18 +6413,25 @@
 
         // --- Learning Tab Logic ---
         let algorithmList = JSON.parse(localStorage.getItem('algorithmList')) || [
-            { id: 'alg_1', name: 'T-Perm', alg: "R U R' U' R' F R2 U' R' U' R U R' F'", category: 'PLL', favorite: false, lastUsed: Date.now(), event: '3x3' },
-            { id: 'alg_2', name: 'Y-Perm', alg: "F R U' R' U' R U R' F' R U R' U' R' F R F'", category: 'PLL', favorite: false, lastUsed: Date.now(), event: '3x3' },
-            { id: 'alg_3', name: 'Sune', alg: "R U R' U R U2 R'", category: 'OLL', favorite: false, lastUsed: Date.now(), event: '3x3' },
-            { id: 'alg_4', name: 'Anti-Sune', alg: "R U2 R' U' R U' R'", category: 'OLL', favorite: false, lastUsed: Date.now(), event: '3x3' },
-            { id: 'alg_5', name: 'Jb-Perm', alg: "R U R' F' R U R' U' R' F R2 U' R'", category: 'PLL', favorite: false, lastUsed: Date.now(), event: '3x3' },
-            { id: 'alg_6', name: 'Ua-Perm', alg: "M2 U M U2 M' U M2", category: 'PLL', favorite: false, lastUsed: Date.now(), event: '3x3' }
+            { id: 'alg_1', name: 'T-Perm', alg: "R U R' U' R' F R2 U' R' U' R U R' F'", category: 'PLL', favorite: false, lastUsed: Date.now(), event: '3x3', custom: false },
+            { id: 'alg_2', name: 'Y-Perm', alg: "F R U' R' U' R U R' F' R U R' U' R' F R F'", category: 'PLL', favorite: false, lastUsed: Date.now(), event: '3x3', custom: false },
+            { id: 'alg_3', name: 'Sune', alg: "R U R' U R U2 R'", category: 'OLL', favorite: false, lastUsed: Date.now(), event: '3x3', custom: false },
+            { id: 'alg_4', name: 'Anti-Sune', alg: "R U2 R' U' R U' R'", category: 'OLL', favorite: false, lastUsed: Date.now(), event: '3x3', custom: false },
+            { id: 'alg_5', name: 'Jb-Perm', alg: "R U R' F' R U R' U' R' F R2 U' R'", category: 'PLL', favorite: false, lastUsed: Date.now(), event: '3x3', custom: false },
+            { id: 'alg_6', name: 'Ua-Perm', alg: "M2 U M U2 M' U M2", category: 'PLL', favorite: false, lastUsed: Date.now(), event: '3x3', custom: false }
         ];
 
-        // MIGRATION: Ensure all algorithms have an event property
+        // MIGRATION: Ensure all algorithms have an event property and custom property
         algorithmList.forEach(a => {
             if (!a.event) a.event = '3x3';
+            if (a.custom === undefined) {
+                // Default algs are alg_1 through alg_6
+                const isDefault = /^alg_[1-6]$/.test(a.id);
+                a.custom = !isDefault;
+            }
         });
+
+        let customAlgSets = JSON.parse(localStorage.getItem('customAlgSets')) || [];
 
         let currentAlgSet = 'PLL';
         let currentAlgSort = 'name-asc';
@@ -6247,7 +6453,8 @@
                 const eventMatch = a.event === currentEvent;
                 const setMatch = currentAlgSet === 'All' || a.category === currentAlgSet;
                 const filterMatch = currentAlgFilter === 'none' ||
-                    (currentAlgFilter === 'favorites' && a.favorite);
+                    (currentAlgFilter === 'favorites' && a.favorite) ||
+                    (currentAlgFilter === 'custom' && a.custom);
                 return eventMatch && setMatch && filterMatch;
             });
 
@@ -6357,6 +6564,188 @@
             closeAllLearningDropdowns();
         };
 
+        window.renderCustomSets = function () {
+            const dropdownContainer = document.getElementById('sets-dropdown').querySelector('.sort-dropdown-content');
+            const modalContainer = document.getElementById('modal-alg-cat-dropdown').querySelector('.sort-dropdown-content');
+ 
+            if (!dropdownContainer || !modalContainer) return;
+ 
+            // Clear existing dynamic sets and subtitles
+            dropdownContainer.querySelectorAll('.dynamic-set, .dropdown-subtitle').forEach(el => el.remove());
+            modalContainer.querySelectorAll('.dynamic-set, .dropdown-subtitle').forEach(el => el.remove());
+ 
+            // Add System Sets subtitle to both
+            const addSubtitle = (container, text, beforeEl) => {
+                const sub = document.createElement('div');
+                sub.className = 'dropdown-subtitle';
+                sub.textContent = text;
+                if (beforeEl) container.insertBefore(sub, beforeEl);
+                else container.appendChild(sub);
+            };
+
+            addSubtitle(dropdownContainer, 'System Sets', dropdownContainer.firstChild);
+            addSubtitle(modalContainer, 'System Sets', modalContainer.firstChild);
+
+            if (customAlgSets.length > 0) {
+                addSubtitle(dropdownContainer, 'Custom Sets', document.getElementById('add-set-divider'));
+                addSubtitle(modalContainer, 'Custom Sets', modalContainer.lastElementChild); // Insert before 'Other'
+            }
+
+            // Add custom sets
+            customAlgSets.forEach(set => {
+                const btn = document.createElement('div');
+                btn.className = 'sort-option-btn dynamic-set';
+                btn.innerHTML = `
+                    <span>${set}</span>
+                    <div class="set-actions">
+                        <button class="edit-set-btn" onclick="editCustomSet(event, '${set}')" title="Edit set">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </button>
+                        <button class="delete-set-btn" onclick="deleteCustomSet(event, '${set}')" title="Delete set">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+                btn.onclick = (e) => {
+                    if (!e.target.closest('.set-actions')) selectAlgSet(set);
+                };
+                dropdownContainer.insertBefore(btn, document.getElementById('add-set-divider'));
+ 
+                const modalBtn = document.createElement('button');
+                modalBtn.className = 'sort-option-btn dynamic-set';
+                modalBtn.textContent = set;
+                modalBtn.onclick = () => setAlgCategory(set);
+                modalContainer.insertBefore(modalBtn, modalContainer.lastElementChild);
+            });
+ 
+            const addSetBtn = document.getElementById('add-set-btn');
+            const addSetDivider = document.getElementById('add-set-divider');
+            if (addSetBtn) addSetBtn.style.display = customAlgSets.length >= 3 ? 'none' : 'block';
+            if (addSetDivider) addSetDivider.style.display = customAlgSets.length >= 3 ? 'none' : 'block';
+        };
+
+        window.deleteCustomSet = function (e, name) {
+            if (e) e.stopPropagation();
+            openConfirmModal({
+                title: 'Delete Set?',
+                body: `Are you sure you want to delete the "${name}" set? Algorithms in this set will remain but their category will be reset to "Other".`,
+                iconSvg: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6" /></svg>`,
+                iconColor: '#ef4444',
+                confirmText: 'Delete',
+                cancelText: 'Cancel',
+                onConfirm: () => {
+                    customAlgSets = customAlgSets.filter(s => s !== name);
+                    localStorage.setItem('customAlgSets', JSON.stringify(customAlgSets));
+
+                    // Update algorithms that were in this set
+                    algorithmList.forEach(alg => {
+                        if (alg.category === name) alg.category = 'User';
+                    });
+                    saveAlgsToStorage();
+
+                    if (currentAlgSet === name) {
+                        selectAlgSet('All');
+                    }
+                    renderCustomSets();
+                    closeConfirmModal();
+                }
+            });
+        };
+
+        window.openAddSetModal = function () {
+            if (customAlgSets.length >= 3) {
+                openConfirmModal({
+                    title: 'Limit Reached',
+                    body: 'You can only have up to 3 custom algorithm sets. Please delete an existing set to add a new one.',
+                    iconSvg: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+                    iconColor: '#f59e0b',
+                    confirmText: 'Got it',
+                    onConfirm: () => closeConfirmModal()
+                });
+                return;
+            }
+            document.getElementById('new-set-name-input').value = '';
+            document.getElementById('set-create-modal').style.display = 'flex';
+        };
+
+        window.closeSetCreateModal = function () {
+            animateModalClose('set-create-modal');
+        };
+
+        window.confirmCreateSet = function () {
+            const nameInput = document.getElementById('new-set-name-input');
+            const name = nameInput.value.trim();
+            if (!name) return;
+            
+            if (customAlgSets.includes(name) || ['PLL', 'OLL', 'F2L', 'All', 'Other'].includes(name)) {
+                nameInput.style.borderColor = '#ef4444';
+                setTimeout(() => { nameInput.style.borderColor = 'var(--border-item)'; }, 1500);
+                return;
+            }
+
+            customAlgSets.push(name);
+            localStorage.setItem('customAlgSets', JSON.stringify(customAlgSets));
+            renderCustomSets();
+            closeSetCreateModal();
+        };
+
+        let editingSetName = null;
+
+        window.editCustomSet = function (e, name) {
+            if (e) e.stopPropagation();
+            editingSetName = name;
+            document.getElementById('edit-set-name-input').value = name;
+            document.getElementById('edit-set-modal').style.display = 'flex';
+        };
+
+        window.closeEditSetModal = function () {
+            animateModalClose('edit-set-modal');
+        };
+
+        window.confirmEditSet = function () {
+            const nameInput = document.getElementById('edit-set-name-input');
+            const newName = nameInput.value.trim();
+            if (!newName || newName === editingSetName) {
+                closeEditSetModal();
+                return;
+            }
+
+            if (customAlgSets.includes(newName) || ['PLL', 'OLL', 'F2L', 'All', 'Other'].includes(newName)) {
+                nameInput.style.borderColor = '#ef4444';
+                setTimeout(() => { nameInput.style.borderColor = 'var(--border-item)'; }, 1500);
+                return;
+            }
+
+            // Update customAlgSets
+            const index = customAlgSets.indexOf(editingSetName);
+            if (index !== -1) customAlgSets[index] = newName;
+            localStorage.setItem('customAlgSets', JSON.stringify(customAlgSets));
+
+            // Update algorithms
+            algorithmList.forEach(alg => {
+                if (alg.category === editingSetName) alg.category = newName;
+            });
+            saveAlgsToStorage();
+
+            if (currentAlgSet === editingSetName) {
+                currentAlgSet = newName;
+                document.getElementById('current-alg-set').textContent = newName;
+            }
+
+            renderCustomSets();
+            closeEditSetModal();
+        };
+
+        // Initial render
+        setTimeout(() => {
+            if (typeof renderCustomSets === 'function') renderCustomSets();
+        }, 100);
+
         window.toggleLearningDropdown = function (id, e) {
             e.stopPropagation();
             const dropdown = document.getElementById(id);
@@ -6465,8 +6854,10 @@
                 'PLL': 'PLL',
                 'OLL': 'OLL',
                 'F2L': 'F2L',
-                'User': 'User Custom'
+                'User': 'Other'
             };
+            customAlgSets.forEach(set => { labels[set] = set; });
+
             const display = document.getElementById('modal-current-alg-cat');
             if (display) display.textContent = labels[cat] || cat;
             closeAllLearningDropdowns();
@@ -6552,7 +6943,8 @@
                     visualizerType: currentAlgPreviewMode,
                     favorite: false,
                     lastUsed: Date.now(),
-                    event: currentEvent
+                    event: currentEvent,
+                    custom: true
                 });
             }
 
@@ -6687,39 +7079,65 @@
     </div>
 
     <!-- Folder Create Modal -->
-    <div id="folder-create-modal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 350px; width: 85%;">
-            <div class="modal-header" style="padding: 20px 24px 10px; border-bottom: none;">
-                <h3 style="margin:0;">New Folder</h3>
+    <div id="folder-create-modal" class="modal-overlay action-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>New Folder</h3>
             </div>
-            <div class="modal-body" style="padding: 10px 24px 20px;">
-                <input type="text" id="new-folder-name-input" placeholder="Folder Name"
-                    style="width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-item); border-radius: 8px; color: #fff; font-size: 16px; outline: none;">
+            <div class="modal-body">
+                <input type="text" id="new-folder-name-input" placeholder="Folder Name">
             </div>
-            <div class="modal-footer" style="padding: 0 24px 24px; display: flex; gap: 10px; border-top: none;">
-                <button onclick="confirmCreateFolder()" class="modal-btn"
-                    style="flex: 1; background: var(--accent-primary); border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; color: #fff;">Create</button>
-                <button onclick="closeFolderCreateModal()" class="modal-btn secondary"
-                    style="flex: 1; padding: 12px;">Cancel</button>
+            <div class="modal-footer">
+                <button onclick="confirmCreateFolder()" class="btn-action-primary">Create</button>
+                <button onclick="closeFolderCreateModal()" class="btn-action-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Set Create Modal -->
+    <div id="set-create-modal" class="modal-overlay action-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>New Algorithm Set</h3>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="new-set-name-input" placeholder="Set Name (e.g. Winter Variation)">
+            </div>
+            <div class="modal-footer">
+                <button onclick="confirmCreateSet()" class="btn-action-primary">Create</button>
+                <button onclick="closeSetCreateModal()" class="btn-action-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Set Modal -->
+    <div id="edit-set-modal" class="modal-overlay action-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Rename Set</h3>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="edit-set-name-input" placeholder="Set Name">
+            </div>
+            <div class="modal-footer">
+                <button onclick="confirmEditSet()" class="btn-action-primary">Save Changes</button>
+                <button onclick="closeEditSetModal()" class="btn-action-secondary">Cancel</button>
             </div>
         </div>
     </div>
 
     <!-- Folder Edit Modal -->
-    <div id="folder-edit-modal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 350px; width: 85%;">
-            <div class="modal-header" style="padding: 20px 24px 10px; border-bottom: none;">
-                <h3 style="margin:0;">Rename Folder</h3>
+    <div id="folder-edit-modal" class="modal-overlay action-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Rename Folder</h3>
             </div>
-            <div class="modal-body" style="padding: 10px 24px 20px;">
-                <input type="text" id="edit-folder-name-input"
-                    style="width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-item); border-radius: 8px; color: #fff; font-size: 16px; outline: none;">
+            <div class="modal-body">
+                <input type="text" id="edit-folder-name-input">
             </div>
-            <div class="modal-footer" style="padding: 0 24px 24px; display: flex; gap: 10px; border-top: none;">
-                <button onclick="confirmRenameFolder()" class="modal-btn"
-                    style="flex: 1; background: var(--accent-primary); border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; color: #fff;">Save</button>
-                <button onclick="closeFolderEditModal()" class="modal-btn secondary"
-                    style="flex: 1; padding: 12px;">Cancel</button>
+            <div class="modal-footer">
+                <button onclick="confirmRenameFolder()" class="btn-action-primary">Save Changes</button>
+                <button onclick="closeFolderEditModal()" class="btn-action-secondary">Cancel</button>
             </div>
         </div>
     </div>
