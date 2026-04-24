@@ -82,13 +82,16 @@
             try {
                 const result = await postData(LOGIN_URL, loginData);
                 
-                // Encrypt and save token to cookie for 1 week (7 days)
-                const token = result.token || result.accessToken;
+                // Extract token from various possible result structures
+                const token = result.token || result.accessToken || (result.data && result.data.token);
+                
                 if (token) {
                     setEncryptedToken(token, 7);
+                    window.location.href = "main_page.html";
+                } else {
+                    console.error("Login successful but no token received in response:", result);
+                    alert("Login failed: No authentication token received.");
                 }
-
-                window.location.href = "main_page.html";
             } catch (error) {
                 console.error("Login Error:", error.message);
                 alert("Login failed: " + error.message);

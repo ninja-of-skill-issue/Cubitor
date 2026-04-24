@@ -4,7 +4,8 @@ const API_URL = "http://localhost:8080";
 const LOGIN_URL = "/api/auth/login";
 const REGISTER_URL = "/api/auth/register";
 const GOOGLE_REGISTER_URL = "/api/auth/google-register";
-const GET_USER_DATA_URL = "/api/main_page";
+const GET_USER_DATA_URL = "/api/user_info";
+const GET_USER_SOLVES_URL = "/api/solves_info";
 
 /**
  * Perform an asynchronous POST request
@@ -31,6 +32,41 @@ async function postData(endpoint, data) {
 }
 
 /**
+ * Perform an asynchronous POST request with an optional authentication token
+ * @param {string} endpoint - The API endpoint relative to API_URL
+ * @param {object} data - The data payload to send as JSON
+ * @param {string} token - Optional authentication token
+ * @returns {Promise<object>} The parsed JSON response
+ */
+async function postDataWithToken(endpoint, data, token = null) {
+    const url = API_URL + endpoint;
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+
+    console.log("[AUTH_TOKEN]: " + token);
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    } else {
+        console.warn("[API] postDataWithToken: No authentication token provided.");
+    }
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        const errorMsg = await response.text();
+        throw new Error(errorMsg || `POST request failed with status ${response.status}`);
+    }
+
+    return await response.json();
+}
+
+
+/**
  * Perform an asynchronous GET request
  * @param {string} endpoint - The API endpoint relative to API_URL
  * @param {string} token - Optional authentication token
@@ -53,39 +89,33 @@ async function getData(endpoint, token = null) {
 }
 
 /**
- * Simple XOR encryption/decryption function
- * @param {string} text - The text to encrypt or decrypt
- * @param {string} key - The encryption key
- * @returns {string} The result (encrypted/decrypted)
- */
-function xorEncryptDecrypt(text, key = "cubing_app_secret") {
-    let result = '';
-    for (let i = 0; i < text.length; i++) {
-        result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-    }
-    return btoa(result); // Base64 encode for safer cookie storage
-}
-
-/**
- * Save an encrypted token to a cookie
+ * Save the auth token to a cookie
  * @param {string} token - The plain text token
  * @param {number} days - Cookie expiration in days
  */
-function setEncryptedToken(token, days = 7) {
-    const encryptedToken = xorEncryptDecrypt(token);
+function setAuthToken(token, days = 7) {
+    if (!token) {
+        console.error("[API] setAuthToken: Attempted to set a null or undefined token.");
+        return;
+    }
     const date = new Date();
     date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
     const expires = "expires=" + date.toUTCString();
-    document.cookie = "auth_token=" + encryptedToken + ";" + expires + ";path=/;SameSite=Strict";
+    document.cookie = "auth_token=" + token + ";" + expires + ";path=/;SameSite=Strict";
+    console.log("[API] setAuthToken: Token saved to cookie.");
 }
 
 /**
- * Retrieve and decrypt the token from a cookie
- * @returns {string|null} The decrypted token or null
+ * Retrieve the auth token from a cookie
+ * @returns {string|null} The token or null
  */
-function getDecryptedToken() {
+function getAuthToken() {
     const name = "auth_token=";
     const decodedCookie = decodeURIComponent(document.cookie);
+    if (!decodedCookie) {
+        console.warn("[API] getAuthToken: document.cookie is empty.");
+        return null;
+    }
     const ca = decodedCookie.split(';');
     for (let i = 0; i < ca.length; i++) {
         let c = ca[i];
@@ -93,20 +123,17 @@ function getDecryptedToken() {
             c = c.substring(1);
         }
         if (c.indexOf(name) == 0) {
-            const encryptedTokenString = c.substring(name.length, c.length);
-            try {
-                const decoded = atob(encryptedTokenString);
-                let result = '';
-                const key = "cubing_app_secret";
-                for (let j = 0; j < decoded.length; j++) {
-                    result += String.fromCharCode(decoded.charCodeAt(j) ^ key.charCodeAt(j % key.length));
-                }
-                return result;
-            } catch (e) {
-                console.error("Token decryption failed:", e);
-                return null;
-            }
+            const token = c.substring(name.length, c.length);
+            console.log("[API] getAuthToken: " + token);
+            return token;
         }
     }
+    console.warn("[API] getAuthToken: 'auth_token' cookie not found in:", decodedCookie);
     return null;
 }
+
+// Compatibility aliases
+const setEncryptedToken = setAuthToken;
+const getDecryptedToken = getAuthToken;
+
+

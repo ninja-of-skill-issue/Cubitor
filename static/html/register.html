@@ -111,6 +111,13 @@
             try {
                 const result = await postData(GOOGLE_REGISTER_URL, googleData);
                 console.log("Google Registration successful:", result);
+                
+                // Save token if returned
+                const token = result.token || result.accessToken;
+                if (token) {
+                    setEncryptedToken(token, 7);
+                }
+
                 window.location.href = "main_page.html";
             } catch (error) {
                 console.error("Google Register Error:", error.message);

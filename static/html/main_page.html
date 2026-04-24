@@ -11,32 +11,112 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@100;300;400;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css?v=19">
-    <script src="../js/api.js"></script>
+    <script src="../js/api.js?v=2"></script>
     <script>
         // AUTH GUARD: Check for token before anything else
         (function () {
-            const token = getDecryptedToken();
+            const token = getAuthToken();
             if (!token) {
                 console.log("No auth token found. Redirecting to login...");
                 window.location.href = "login.html";
                 return;
             }
 
-            // Fetch user data if token exists
-            getData(GET_USER_DATA_URL, token)
+            // Fetch user data if token exists using GET with auth header
+            postDataWithToken(GET_USER_DATA_URL, {}, token)
                 .then(userData => {
                     console.log("User data retrieved:", userData);
-                    // Handle user data (e.g., set name in profile)
-                    if (userData && userData.name) {
-                        // Assuming profile display logic exists or will be added
-                        // For now, just log it.
+                    if (userData) {
+                        window.currentUser = userData;
+                        
+                        const updateUI = () => {
+                            const mapping = {
+                                'profile-name': userData.name || userData.username || 'Cuber',
+                                'profile-email': userData.email || '',
+                                'profile-bio-display': userData.bio || userData.description,
+                                'fav-event-display': userData.fav_event,
+                                'goal-display': userData.goal,
+                                'pronouns-display': userData.pronouns
+                            };
+                            
+                            for (const [id, value] of Object.entries(mapping)) {
+                                const el = document.getElementById(id);
+                                if (el && value) {
+                                    if (id === 'pronouns-display') {
+                                        el.textContent = value;
+                                        el.setAttribute('data-pronouns', value);
+                                    } else {
+                                        el.textContent = value;
+                                    }
+                                }
+                            }
+                            
+                            if (userData.elo !== undefined) {
+                                const eloEl = document.getElementById('profile-elo');
+                                if (eloEl) eloEl.textContent = `Elo: ${userData.elo}`;
+                            }
+
+                            if (userData.profile_pic) {
+                                window.profile_pic = `<img src="${userData.profile_pic}" alt="Profile Picture">`;
+                                document.querySelectorAll('.profile-pic, .profile-pic-large').forEach(el => {
+                                    el.innerHTML = window.profile_pic;
+                                });
+                            }
+                        };
+
+                        if (document.readyState === 'loading') {
+                            document.addEventListener('DOMContentLoaded', updateUI);
+                        } else {
+                            updateUI();
+                        }
                     }
                 })
                 .catch(err => {
-                    console.error("Failed to fetch user data:", err);
-                    // If the token is invalid or expired, the API might return 401
-                    // In a real app, you might want to redirect back to login here
-                    // window.location.href = "login.html";
+                    console.error("Error fetching user data:", err);
+                });
+
+            // Fetch solves data
+            postDataWithToken(GET_USER_SOLVES_URL, {}, token)
+                .then(solvesData => {
+                    console.log("Solves data retrieved:", solvesData);
+                    if (solvesData && solvesData.solves) {
+                        // Support both grouped object {eventId: []} and flat array
+                        if (Array.isArray(solvesData.solves)) {
+                            // Reset local arrays before populating from server
+                            Object.keys(allEvents).forEach(k => allEvents[k] = []);
+                            solvesData.solves.forEach(solve => {
+                                if (allEvents[solve.eventId]) {
+                                    allEvents[solve.eventId].push(solve);
+                                }
+                            });
+                        } else {
+                            for (const eventId in solvesData.solves) {
+                                if (allEvents[eventId]) {
+                                    allEvents[eventId] = solvesData.solves[eventId];
+                                }
+                            }
+                        }
+
+                        // Update references and UI
+                        solveHistory = allEvents[currentEvent];
+                        console.log("Processed solves integrated into state:", allEvents);
+                        
+                        // Ensure this runs after DOM is ready
+                        const refreshUI = () => {
+                            if (typeof updateStatsUI === 'function') updateStatsUI();
+                            if (typeof updateChart === 'function') updateChart();
+                            if (typeof renderWidgets === 'function') renderWidgets();
+                        };
+
+                        if (document.readyState === 'loading') {
+                            document.addEventListener('DOMContentLoaded', refreshUI);
+                        } else {
+                            refreshUI();
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error("Error fetching solves data:", err);
                 });
         })();
     </script>
@@ -47,6 +127,8 @@
     <script type="module">
         import { randomScrambleForEvent } from "https://cdn.cubing.net/v0/js/cubing/scramble";
         import { Alg } from "https://cdn.cubing.net/v0/js/cubing/alg";
+        // Import components for display (scramble-display, etc.)
+        import "https://cdn.cubing.net/v0/js/scramble-display";
         window.randomScrambleForEvent = randomScrambleForEvent;
         window.Alg = Alg;
         if (typeof generateScramble === 'function') generateScramble();
@@ -56,7 +138,6 @@
             });
         }
     </script>
-    <script src="https://cdn.cubing.net/js/cubing" type="module"></script>
     <script src="../js/cubing logic/custom_scramble_display.js"></script>
     <script src="../js/cubing logic/nxn_top_view.js"></script>
     <script src="../js/cubing logic/nxn_isometric_view.js"></script>
@@ -311,7 +392,8 @@
             opacity: 0.8;
         }
 
-        .edit-set-btn, .delete-set-btn {
+        .edit-set-btn,
+        .delete-set-btn {
             color: var(--text-muted);
             width: 28px;
             height: 28px;
@@ -333,6 +415,21 @@
         .delete-set-btn:hover {
             color: #ff4d4d;
             background: rgba(255, 77, 77, 0.1);
+        }
+
+        .profile-username,
+        .profile-email {
+            color: var(--text-muted);
+            font-size: 13px;
+            font-family: var(--font-mono);
+            font-weight: 400;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .profile-meta-row {
+            margin-top: -2px;
+            margin-bottom: 8px;
         }
     </style>
 </head>
@@ -1064,7 +1161,8 @@
                                     <button class="sort-option-btn" onclick="selectAlgSet('F2L')">F2L</button>
                                     <hr id="add-set-divider">
                                     <button class="sort-option-btn" id="add-set-btn" onclick="openAddSetModal()">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="3">
                                             <line x1="12" y1="5" x2="12" y2="19"></line>
                                             <line x1="5" y1="12" x2="19" y2="12"></line>
                                         </svg>
@@ -1108,7 +1206,8 @@
                                     <button class="sort-option-btn" onclick="setAlgFilter('none')">Show All</button>
                                     <button class="sort-option-btn"
                                         onclick="setAlgFilter('favorites')">Favorites</button>
-                                    <button class="sort-option-btn" onclick="setAlgFilter('custom')">User Custom</button>
+                                    <button class="sort-option-btn" onclick="setAlgFilter('custom')">User
+                                        Custom</button>
                                     <button class="sort-option-btn" onclick="setAlgFilter('recent')">Recent</button>
                                 </div>
                             </div>
@@ -1127,8 +1226,10 @@
                     <div class="tutorial-grid">
                         <!-- Notation Tutorial Card -->
                         <div class="tutorial-card" onclick="openTutorial('notation')">
-                            <div class="tutorial-icon-container" style="background: rgba(34,211,238,0.1); color: #22d3ee;">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <div class="tutorial-icon-container"
+                                style="background: rgba(34,211,238,0.1); color: #22d3ee;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
                                     <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
                                     <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
                                 </svg>
@@ -1138,11 +1239,13 @@
                                 <p>Master the standard language used to describe cube moves and algorithms.</p>
                             </div>
                         </div>
-                        
+
                         <!-- Coming Soon Card -->
                         <div class="tutorial-card" style="opacity: 0.6; cursor: default;">
-                            <div class="tutorial-icon-container" style="background: rgba(255,255,255,0.05); color: var(--text-muted);">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <div class="tutorial-icon-container"
+                                style="background: rgba(255,255,255,0.05); color: var(--text-muted);">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <line x1="12" y1="8" x2="12" y2="12"></line>
                                     <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -1159,8 +1262,10 @@
                 <!-- Article View (Hidden by default) -->
                 <div id="tutorial-article-view" style="display: none;">
                     <div class="article-header" style="background: transparent; padding: 0 0 20px 0;">
-                        <button class="top-bar-btn" onclick="backToTutorials()" style="margin-right: 15px; background: rgba(255,255,255,0.05);">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <button class="top-bar-btn" onclick="backToTutorials()"
+                            style="margin-right: 15px; background: rgba(255,255,255,0.05);">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
                                 <polyline points="15 18 9 12 15 6"></polyline>
                             </svg>
                             Back
@@ -1627,6 +1732,9 @@
                                     say</div>
                             </div>
                         </div>
+                    </div>
+                    <div class="profile-meta-row">
+                        <span id="profile-email" class="profile-email"></span>
                     </div>
                     <div id="profile-elo" onmouseenter="showEloTooltip()" onmouseleave="hideEloTooltip()"
                         onclick="toggleEloTooltip(event)">
@@ -2281,7 +2389,7 @@
         let timerInterval = null;
         let readyTimeout = null;
         let currentTime = 0;
-        let profile_pic = '<img src="../testing elements/image.png" alt="Profile Picture">';
+        let profile_pic = window.profile_pic || '<img src="../testing elements/image.png" alt="Profile Picture">';
         let isCelebratingPB = false;
 
         // --- Scramble Management State ---
@@ -3000,7 +3108,7 @@
             const articleView = document.getElementById('tutorial-article-view');
             const title = document.getElementById('article-view-title');
             const body = document.getElementById('article-view-body');
-            
+
             if (id === 'notation') {
                 title.innerText = "Cube Notation Guide";
                 body.innerHTML = `
@@ -3111,10 +3219,10 @@
                     </ul>
                 `;
             }
-            
+
             gridView.style.display = 'none';
             articleView.style.display = 'block';
-            
+
             // Scroll back to top of the sub-panel
             const panel = document.getElementById('learning-tutorials-panel');
             if (panel) panel.scrollTop = 0;
@@ -3250,14 +3358,12 @@
         }
         function initializeDefaultTab() {
             const lastTab = localStorage.getItem('lastActiveTab') || 'timer-tab';
-            console.log('[DEBUG] initializeDefaultTab restoring:', lastTab);
             isInitializing = true;
             switchTab(lastTab);
             isInitializing = false;
         }
 
         function switchTab(tabName, tabId, element) {
-            console.log('[DEBUG] switchTab entry:', { tabName, tabId, element: element ? element.id : 'null' });
             // Smart argument handling: If only one arg is provided, it's the tabId
             if (typeof tabId === 'undefined') {
                 tabId = tabName;
@@ -3280,8 +3386,6 @@
                 return;
             }
 
-            console.log('[switchTab] called with tabId:', tabId, '| isInitializing:', isInitializing);
-            console.trace('[switchTab] call stack');
             // Update the small title
             document.getElementById('current-tab-title').textContent = tabName;
             const mobileTitle = document.getElementById('mobile-tab-title');
@@ -3336,7 +3440,6 @@
             if (!isInitializing) {
                 if (typeof lastActiveTab !== 'undefined') lastActiveTab = tabId;
                 localStorage.setItem('lastActiveTab', tabId);
-                console.log('[Tab] Switched and saved:', tabId);
             }
 
             // Trigger layout updates
@@ -6274,7 +6377,6 @@
             syncOptionsUI();
 
             // Initialize to the user's preferred starting tab
-            console.log('[initApp] lastActiveTab right before initializeDefaultTab:', lastActiveTab, '| localStorage:', localStorage.getItem('lastActiveTab'));
             initializeDefaultTab();
 
             // Responsive navigation highlights
@@ -6567,13 +6669,13 @@
         window.renderCustomSets = function () {
             const dropdownContainer = document.getElementById('sets-dropdown').querySelector('.sort-dropdown-content');
             const modalContainer = document.getElementById('modal-alg-cat-dropdown').querySelector('.sort-dropdown-content');
- 
+
             if (!dropdownContainer || !modalContainer) return;
- 
+
             // Clear existing dynamic sets and subtitles
             dropdownContainer.querySelectorAll('.dynamic-set, .dropdown-subtitle').forEach(el => el.remove());
             modalContainer.querySelectorAll('.dynamic-set, .dropdown-subtitle').forEach(el => el.remove());
- 
+
             // Add System Sets subtitle to both
             const addSubtitle = (container, text, beforeEl) => {
                 const sub = document.createElement('div');
@@ -6615,14 +6717,14 @@
                     if (!e.target.closest('.set-actions')) selectAlgSet(set);
                 };
                 dropdownContainer.insertBefore(btn, document.getElementById('add-set-divider'));
- 
+
                 const modalBtn = document.createElement('button');
                 modalBtn.className = 'sort-option-btn dynamic-set';
                 modalBtn.textContent = set;
                 modalBtn.onclick = () => setAlgCategory(set);
                 modalContainer.insertBefore(modalBtn, modalContainer.lastElementChild);
             });
- 
+
             const addSetBtn = document.getElementById('add-set-btn');
             const addSetDivider = document.getElementById('add-set-divider');
             if (addSetBtn) addSetBtn.style.display = customAlgSets.length >= 3 ? 'none' : 'block';
@@ -6681,7 +6783,7 @@
             const nameInput = document.getElementById('new-set-name-input');
             const name = nameInput.value.trim();
             if (!name) return;
-            
+
             if (customAlgSets.includes(name) || ['PLL', 'OLL', 'F2L', 'All', 'Other'].includes(name)) {
                 nameInput.style.borderColor = '#ef4444';
                 setTimeout(() => { nameInput.style.borderColor = 'var(--border-item)'; }, 1500);
