@@ -80,15 +80,15 @@ class NxNTopView extends HTMLElement {
                 max-height: 100%;
                 aspect-ratio: 1/1;
                 padding: 2cqw;
-                background: transparent;
+                background: none;
                 box-sizing: border-box;
                 margin: auto;
             }
-            .sticker { border-radius: 1.5cqw; width: 100%; height: 100%; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1); }
-            .center-sticker { aspect-ratio: 1/1; border-radius: 2.5cqw; }
-            .side-sticker { background: #222; }
-            .side-sticker.top, .side-sticker.bottom { border-radius: 1.2cqw; }
-            .side-sticker.left, .side-sticker.right { border-radius: 1.2cqw; }
+            .sticker { border-radius: 3.5cqw; width: 100%; height: 100%; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1); }
+            .center-sticker { aspect-ratio: 1/1; border-radius: 6cqw; }
+            .side-sticker { background: transparent; }
+            .side-sticker.top, .side-sticker.bottom { border-radius: 2cqw; }
+            .side-sticker.left, .side-sticker.right { border-radius: 2cqw; }
         </style>
         <div class="container">
         `;

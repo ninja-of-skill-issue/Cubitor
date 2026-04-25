@@ -173,17 +173,22 @@
     <script src="../js/cubing logic/custom_scramble_display.js"></script>
     <script src="../js/cubing logic/nxn_top_view.js"></script>
     <script src="../js/cubing logic/nxn_isometric_view.js"></script>
+    <script src="../js/cubing logic/nxn_interactive_3d.js"></script>
     <style>
-        scramble-display,
-        custom-scramble-display,
         nxn-top-view,
-        nxn-isometric-view {
+        nxn-isometric-view,
+        nxn-interactive-3d,
+        .alg-viz-container,
+        #alg-preview-3d-viz,
+        [id*="alg-preview-"] {
             opacity: 1 !important;
             visibility: visible !important;
-            min-height: 100px;
-            min-width: 100px;
             width: 100%;
             height: 100%;
+            background: transparent !important;
+            background-color: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
         }
 
         .scramble-display {
@@ -2509,11 +2514,11 @@
 
                 <div style="display: flex; justify-content: center; margin-bottom: 24px;">
                     <div
-                        style="width: 280px; height: 280px; background: rgba(0,0,0,0.3); border-radius: 16px; padding: 10px; border: 1px solid var(--border-item); display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2); position: relative;">
+                        style="width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
                         <nxn-top-view id="alg-preview-top-viz" size="3" focus-face="U" scramble=""
                             style="width: 100%; height: 100%; display: flex;"></nxn-top-view>
-                        <nxn-isometric-view id="alg-preview-3d-viz" size="3" scramble=""
-                            style="width: 100%; height: 100%; display: none;"></nxn-isometric-view>
+                        <nxn-interactive-3d id="alg-preview-3d-viz" size="3" scramble=""
+                            style="width: 100%; height: 100%; display: none;"></nxn-interactive-3d>
                         <custom-scramble-display id="alg-preview-net-viz" event="333" scramble=""
                             style="width: 100%; height: 100%; display: none;"></custom-scramble-display>
                     </div>
@@ -3460,7 +3465,7 @@
                 'clock': 'clock', 'megaminx': 'minx', 'pyraminx': 'pyram', 'skewb': 'skewb', 'sq1': 'sq1'
             };
             const mappedId = wcaFormatMap[eventId] || '333';
-            const cubeDisplays = document.querySelectorAll('scramble-display.widget-viz, custom-scramble-display.widget-viz');
+            const cubeDisplays = document.querySelectorAll('scramble-display.widget-viz, custom-scramble-display.widget-viz, nxn-interactive-3d.widget-viz, nxn-isometric-view.widget-viz, nxn-top-view.widget-viz');
             cubeDisplays.forEach(c => {
                 if (typeof c.updateVisualizer === 'function') {
                     c.updateVisualizer(mappedId, scramble);
@@ -6740,6 +6745,25 @@
                     header.prepend(editBtn);
                 }
 
+                if (config === 'scramble') {
+                    const toggleBtn = document.createElement('div');
+                    toggleBtn.className = 'widget-view-toggle';
+                    toggleBtn.style.cssText = 'display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.05); padding: 2px; border-radius: 6px; cursor: pointer; user-select: none; border: 1px solid rgba(255,255,255,0.05); transition: all 0.2s;';
+                    const currentMode = localStorage.getItem('scramble_view_mode') || '2D';
+                    toggleBtn.innerHTML = `
+                        <div style="padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; color: ${currentMode === '3D' ? '#fff' : 'rgba(255,255,255,0.4)'}; background: ${currentMode === '3D' ? 'var(--accent-primary)' : 'transparent'};">3D</div>
+                        <div style="padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; color: ${currentMode === '2D' ? '#fff' : 'rgba(255,255,255,0.4)'}; background: ${currentMode === '2D' ? 'var(--accent-primary)' : 'transparent'};">Net</div>
+                    `;
+                    toggleBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        const newMode = (localStorage.getItem('scramble_view_mode') || '2D') === '2D' ? '3D' : '2D';
+                        localStorage.setItem('scramble_view_mode', newMode);
+                        renderWidgets();
+                    };
+                    header.prepend(toggleBtn);
+                    header.style.justifyContent = 'space-between';
+                }
+
                 header.appendChild(dropdownContainer);
                 card.appendChild(header);
 
@@ -6766,13 +6790,29 @@
                     const mappedEventId = wcaFormatMap[eventFallback] || '333';
 
                     const isNxN = ['222', '333', '444', '555', '666', '777'].includes(mappedEventId);
-                    const tag = isNxN ? 'custom-scramble-display' : 'scramble-display';
+                    const viewMode = localStorage.getItem('scramble_view_mode') || '2D';
+                    
+                    // Prioritize my custom 3D/Net views for standard cubes
+                    let tag;
+                    if (viewMode === '3D') {
+                        tag = isNxN ? 'nxn-interactive-3d' : 'scramble-display';
+                    } else {
+                        tag = isNxN ? 'custom-scramble-display' : 'scramble-display';
+                    }
 
                     content.style.padding = '10px';
                     const cubeElement = document.createElement(tag);
                     cubeElement.className = 'widget-viz';
                     cubeElement.style.cssText = 'width: 100%; height: 100%; min-height: 140px; max-width: 220px; margin: auto; display: block !important; opacity: 1 !important; visibility: visible !important;';
-                    cubeElement.setAttribute('event', mappedEventId);
+                    
+                    if (tag === 'nxn-interactive-3d' || tag === 'nxn-isometric-view') {
+                        const size = parseInt(mappedEventId[0]) || 3;
+                        cubeElement.setAttribute('size', size);
+                    } else {
+                        cubeElement.setAttribute('event', mappedEventId);
+                        if (viewMode === '3D') cubeElement.setAttribute('visualization', '3D');
+                        else cubeElement.setAttribute('visualization', '2D');
+                    }
                     if (textScramble) {
                         cubeElement.setAttribute('scramble', textScramble);
                     }
@@ -7239,7 +7279,7 @@
                 let visualizerHtml = '';
                 if (isNXN) {
                     if (vType === '3d') {
-                        visualizerHtml = `<nxn-isometric-view size="${size}" scramble="${item.alg}" style="width: 100%; height: 100%;"></nxn-isometric-view>`;
+                        visualizerHtml = `<nxn-interactive-3d size="${size}" scramble="${item.alg}" style="width: 100%; height: 100%;"></nxn-interactive-3d>`;
                     } else if (vType === 'net') {
                         visualizerHtml = `<custom-scramble-display class="active-viz" event="${wcaEvent}" scramble="${item.alg}" style="width: 100%; height: 100%;"></custom-scramble-display>`;
                     } else {

@@ -4660,12 +4660,14 @@ input:checked+.slider:before {
     justify-content: center;
     overflow: hidden;
     position: relative;
+    background: transparent !important;
 }
 
 .alg-viz-container nxn-top-view,
-.alg-viz-container nxn-isometric-view {
-    max-width: 115px;
-    max-height: 115px;
+.alg-viz-container nxn-isometric-view,
+.alg-viz-container nxn-interactive-3d {
+    max-width: 155px;
+    max-height: 155px;
 }
 
 .alg-viz-container custom-scramble-display,
