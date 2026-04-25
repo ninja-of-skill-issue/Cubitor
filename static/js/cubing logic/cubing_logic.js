@@ -248,3 +248,86 @@ function breakdownRows(solves) {
             <span>#${sv.solveNum}</span><span>${t}${sv.penalty === '+2' ? ' (+2)' : ''}</span></div>`;
     }).join('');
 }
+
+/**
+ * Finds the worst (slowest) single solve in history.
+ */
+function getWorstSingleDetail(history) {
+    const list = history || solveHistory;
+    if (!list || list.length === 0) return null;
+    let worstIndex = -1;
+    let maxTime = -Infinity;
+
+    for (let i = 0; i < list.length; i++) {
+        const eff = getEffectiveTime(list[i]);
+        // DNF is considered the worst
+        if (eff === Infinity) {
+            worstIndex = i;
+            break; // Can't get worse than DNF
+        }
+        if (eff > maxTime) {
+            maxTime = eff;
+            worstIndex = i;
+        }
+    }
+
+    if (worstIndex === -1) return null;
+    return {
+        solve: list[worstIndex],
+        solveNum: worstIndex + 1
+    };
+}
+
+/**
+ * Retrieves the worst (slowest) trimmed average of size N from the solve history.
+ */
+function getWorstAverageDetail(n, history) {
+    const list = history || solveHistory;
+    if (!list || list.length < n) return null;
+    let worst = -Infinity;
+    let worstWindow = null;
+    let worstStartIndex = 0;
+
+    for (let i = 0; i <= list.length - n; i++) {
+        const windowSolves = list.slice(i, i + n);
+        const avg = calculateAverage(windowSolves.map(s => getEffectiveTime(s)));
+        if (avg !== null && (avg === Infinity || avg > worst)) {
+            worst = avg;
+            worstWindow = windowSolves;
+            worstStartIndex = i;
+            if (worst === Infinity) break; // Can't get worse than DNF average
+        }
+    }
+    if (worst === -Infinity) return null;
+
+    let times = worstWindow.map(s => getEffectiveTime(s));
+    let minTime = Math.min(...times);
+    let maxTime = Math.max(...times);
+
+    let droppedMin = false;
+    let droppedMax = false;
+
+    let resultList = worstWindow.map((solve, idx) => {
+        let effTime = getEffectiveTime(solve);
+        let dropped = false;
+        if (!droppedMin && effTime === minTime) {
+            droppedMin = true;
+            dropped = true;
+        } else if (!droppedMax && effTime === maxTime) {
+            droppedMax = true;
+            dropped = true;
+        }
+        return {
+            solveNum: worstStartIndex + idx + 1,
+            time: effTime,
+            scramble: solve.scramble,
+            penalty: solve.penalty,
+            dropped: dropped
+        };
+    });
+
+    return {
+        average: worst,
+        solves: resultList
+    };
+}

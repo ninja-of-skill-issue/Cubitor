@@ -653,29 +653,47 @@ input, button, textarea, select {
     scroll-margin: 10px;
 }
 
+.wdg-tile.dragging {
+    opacity: 0.4;
+    border: 2px dashed var(--accent-primary);
+}
+
 /* ── Stats Widget Tiles ─────────────────────────────────── */
 .wdg-tile-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr 1fr;
-    grid-template-areas:
-        "pb  ao50"
-        "pb  avg"
-        "ao5pb  ao5"
-        "ao12pb ao12";
+    display: flex;
+    flex-wrap: wrap;
+    align-content: stretch;
     gap: 4px;
     padding: 4px;
     width: 100%;
     height: 100%;
     box-sizing: border-box;
-    overflow: visible;
+    overflow-y: auto;
     /* CRITICAL: enable tooltips to escape the grid */
 }
 
+/* Hide scrollbar for the dynamic grid but allow scrolling */
+.wdg-tile-grid::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+}
+
+/* Removed nth-child odd spanning as flexbox handles filling natively */
+
+.wdg-tile-pb, .wdg-tile-large {
+    flex: 1 1 100% !important;
+}
+
+.wdg-tile-medium {
+    flex: 1 1 calc(48%) !important; /* Slightly smaller basis to prevent wrapping on some zoom levels */
+}
+
 .wdg-tile {
+    flex: 1 1 calc(30%); /* Safe basis for 3-column rows */
+    min-height: 50px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 8px;
-    padding: 10px 12px;
+    padding: 8px 10px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -696,40 +714,12 @@ input, button, textarea, select {
     z-index: 101 !important;
 }
 
-/* Grid area assignments */
-.wdg-tile[data-key="best"] {
-    grid-area: pb;
-}
-
-.wdg-tile[data-key="cur-ao50"] {
-    grid-area: ao50;
-}
-
-.wdg-tile[data-key="mean"] {
-    grid-area: avg;
-}
-
-.wdg-tile[data-key="best-ao5"] {
-    grid-area: ao5pb;
-}
-
-.wdg-tile[data-key="cur-ao5"] {
-    grid-area: ao5;
-}
-
-.wdg-tile[data-key="best-ao12"] {
-    grid-area: ao12pb;
-}
-
-.wdg-tile[data-key="cur-ao12"] {
-    grid-area: ao12;
-}
-
+/* Grid area assignments removed for dynamic flow */
 .wdg-lbl {
     position: absolute;
     top: 8px;
     left: 10px;
-    font-size: 11px;
+    font-size: 10px;
     color: var(--text-muted);
     font-weight: 500;
     font-family: var(--font-main);
@@ -739,7 +729,7 @@ input, button, textarea, select {
 .wdg-val {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
     color: var(--text-primary);
     text-align: right;
@@ -747,15 +737,27 @@ input, button, textarea, select {
     line-height: 1;
 }
 
-/* PB tile: larger value, accent colour */
-.wdg-tile[data-key="best"] .wdg-lbl {
-    font-size: 13px;
-}
-
 .wdg-val-pb {
-    font-size: 34px !important;
     color: var(--accent-primary) !important;
 }
+
+/* Size-based Overrides */
+.wdg-tile-medium {
+    background: rgba(255, 255, 255, 0.08);
+}
+.wdg-tile-medium .wdg-lbl { font-size: 12px; }
+.wdg-tile-medium .wdg-val { 
+    font-size: 24px; 
+    color: #60a5fa; /* Cool blue accent for medium tiles */
+    text-shadow: 0 0 15px rgba(96, 165, 250, 0.2);
+}
+
+.wdg-tile-large {
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.05);
+}
+.wdg-tile-large .wdg-lbl { font-size: 14px; }
+.wdg-tile-large .wdg-val { font-size: 34px; }
 
 .wsr-label {
     color: var(--text-muted);

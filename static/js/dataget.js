@@ -14,6 +14,7 @@ let minigameHistory = []; // Persistent history of minigame folders
 
 var widgetConfig = ['solves', 'stats', 'scramble', 'graph', 'columns']; // Default widget layout
 var minigameWidgetConfig = ['solves', 'scramble', 'gameui', 'chat']; // Default minigame layout
+var statsWidgetConfig = ['best-single|medium', 'cur-single|medium', 'cur-ao5|normal', 'cur-ao12|normal', 'cur-ao50|normal', 'best-ao5|normal', 'best-ao12|normal', 'cur-mean|normal']; // Default stats tiles
 var widgetCount = 5; // Default amount of widgets to display
 let userBio = "";
 let favoriteEvent = "";
@@ -216,6 +217,7 @@ function saveToLocalStorage() {
     saveTheme();
     saveFont();
     saveFolderState();
+    localStorage.setItem('statsWidgetConfig', JSON.stringify(statsWidgetConfig));
     localStorage.setItem('userBio', userBio);
     localStorage.setItem('favoriteEvent', favoriteEvent);
     localStorage.setItem('cubingGoal', cubingGoal);
@@ -478,4 +480,13 @@ function loadFromLocalStorage() {
     if (savedInspection !== null) useInspection = (savedInspection === 'true');
     const savedSaveMinigame = localStorage.getItem('saveMinigameSolves');
     if (savedSaveMinigame !== null) saveMinigameSolves = (savedSaveMinigame === 'true');
+
+    const savedStatsConfig = localStorage.getItem('statsWidgetConfig');
+    if (savedStatsConfig) {
+        try {
+            statsWidgetConfig = JSON.parse(savedStatsConfig);
+        } catch (e) {
+            console.warn('Failed to parse statsWidgetConfig:', e);
+        }
+    }
 }

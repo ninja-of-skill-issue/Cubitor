@@ -10,8 +10,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@100;300;400;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="../css/style.css?v=19">
+    <link rel="stylesheet" href="../css/style.css?v=36">
     <script src="../js/api.js?v=2"></script>
+    <script src="../js/dataget.js?v=14"></script>
     <script>
         // AUTH GUARD: Check for token before anything else
         (function () {
@@ -120,10 +121,9 @@
                 });
         })();
     </script>
-    <script src="../js/dataget.js?v=12"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script src="../js/cubing logic/cubing_logic.js"></script>
+    <script src="../js/cubing logic/cubing_logic.js?v=2"></script>
     <script type="module">
         import { randomScrambleForEvent } from "https://cdn.cubing.net/v0/js/cubing/scramble";
         import { Alg } from "https://cdn.cubing.net/v0/js/cubing/alg";
@@ -137,7 +137,39 @@
                 if (typeof recalcScrambleFontSize === 'function') recalcScrambleFontSize();
             });
         }
+
+        // --- Custom Alert System ---
+        window.alert = function(message, title = 'Notification') {
+            const modal = document.getElementById('generic-alert-modal');
+            const titleEl = document.getElementById('alert-title');
+            const msgEl = document.getElementById('alert-message');
+            if (!modal || !msgEl) {
+                console.log("Alert Fallback:", message);
+                return;
+            }
+            titleEl.textContent = title;
+            msgEl.textContent = message;
+            modal.style.display = 'flex';
+        };
+
+        window.closeAlertModal = function() {
+            const modal = document.getElementById('generic-alert-modal');
+            if (!modal) return;
+            modal.classList.add('closing');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                modal.classList.remove('closing');
+            }, 200);
+        };
     </script>
+    <style>
+        .alert-modal-content {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal-overlay.closing .alert-modal-content {
+            animation: fadeOutDown 0.2s ease forwards !important;
+        }
+    </style>
     <script src="../js/cubing logic/custom_scramble_display.js"></script>
     <script src="../js/cubing logic/nxn_top_view.js"></script>
     <script src="../js/cubing logic/nxn_isometric_view.js"></script>
@@ -430,6 +462,145 @@
         .profile-meta-row {
             margin-top: -2px;
             margin-bottom: 8px;
+        }
+        .widget-edit-btn {
+            margin-right: auto;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s;
+            opacity: 0.6;
+        }
+
+        .widget-edit-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 1;
+        }
+
+        .widget-header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .stats-config-row {
+            margin-bottom: 16px;
+        }
+
+        .stats-config-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        /* Hide number input arrows */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        /* Stats Edit Modal specific */
+        .stats-edit-preview-container {
+            background: var(--bg-item);
+            border-radius: 12px;
+            padding: 8px;
+            margin: 0 auto 20px;
+            border: 1px solid var(--border-item);
+            max-width: 320px; /* Force the exact same wrapping behavior as the dashboard widget */
+        }
+
+        .stats-edit-selector-area {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border-item);
+            display: none;
+        }
+
+        .stats-edit-selector-area.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .stats-option-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .stats-option-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-item);
+            color: var(--text-secondary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 12px;
+            transition: all 0.2s;
+            font-family: var(--font-main);
+        }
+
+        .stats-option-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .stats-option-btn.active {
+            background: var(--accent-primary);
+            color: #fff;
+            border-color: var(--accent-primary);
+        }
+
+        .wdg-tile.selectable {
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+
+        .wdg-tile.selectable:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 0 2px var(--accent-primary);
+            z-index: 10;
+        }
+
+        .wdg-tile.selected {
+            box-shadow: 0 0 0 2px var(--accent-primary);
+            background: rgba(16, 185, 129, 0.1);
+            z-index: 11;
+        }
+
+        .wdg-tile.selectable::after {
+            content: 'Click to Change';
+            position: absolute;
+            bottom: 4px;
+            right: 6px;
+            font-size: 8px;
+            color: var(--accent-primary);
+            opacity: 0;
+            transition: opacity 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .wdg-tile.selectable:hover::after {
+            opacity: 0.8;
         }
     </style>
 </head>
@@ -726,7 +897,7 @@
                 </div>
 
                 <div id="widgets-scroll-outer" class="widgets-scroll-outer draggable-scroll-area">
-                    <div class="bottom-widgets-wrapper draggable-scroll-area" id="widgets-wrapper">
+                    <div class="bottom-widgets-wrapper" id="widgets-wrapper">
                         <!-- Widgets generated dynamically by JS -->
                     </div>
                 </div>
@@ -2077,6 +2248,91 @@
         </div>
     </div>
 
+    <div id="stats-edit-modal" class="modal-overlay">
+        <div class="modal-content action-modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Edit Stats Widget</h3>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+                    Select a tile in the preview below to change what statistic it displays.
+                </p>
+
+                <div class="stats-edit-preview-container">
+                    <div id="stats-modal-preview" class="wdg-tile-grid">
+                        <!-- Preview injected here -->
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                    <button class="stats-option-btn" style="flex: 1;" onclick="addStatSlot()">Add New Stat</button>
+                    <button class="stats-option-btn" style="flex: 1;" onclick="deleteStatSlot()">Remove Selected</button>
+                </div>
+
+                <div id="stats-selector-area" class="stats-edit-selector-area">
+                    <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">
+                        Configure Slot <span id="selected-tile-label" style="color: var(--accent-primary); font-weight: 700;">--</span>
+                    </div>
+                    
+                    <div class="stats-config-row">
+                        <div class="stats-config-label">Type</div>
+                        <div id="stats-type-btns" class="stats-option-grid">
+                            <button class="stats-option-btn" onclick="setStatConfig('type', 'single')">Single</button>
+                            <button class="stats-option-btn" onclick="setStatConfig('type', 'ao')">Average</button>
+                            <button class="stats-option-btn" onclick="setStatConfig('type', 'mean')">Mean</button>
+                        </div>
+                    </div>
+
+                    <div class="stats-config-row">
+                        <div class="stats-config-label">Modifier</div>
+                        <div id="stats-mod-btns" class="stats-option-grid">
+                            <button class="stats-option-btn" onclick="setStatConfig('mod', 'best')">Best</button>
+                            <button class="stats-option-btn" onclick="setStatConfig('mod', 'cur')">Last</button>
+                            <button class="stats-option-btn" onclick="setStatConfig('mod', 'worst')">Worst</button>
+                        </div>
+                    </div>
+
+                    <div class="stats-config-row">
+                        <div class="stats-config-label">Block Size</div>
+                        <div id="stats-size-btns" class="stats-option-grid">
+                            <button class="stats-option-btn" onclick="setStatConfig('size', 'normal')">Normal</button>
+                            <button class="stats-option-btn" onclick="setStatConfig('size', 'medium')">Medium</button>
+                            <button class="stats-option-btn" onclick="setStatConfig('size', 'large')">Large</button>
+                        </div>
+                    </div>
+
+                    <div class="stats-config-row">
+                        <div class="stats-config-label">Position</div>
+                        <div class="stats-option-grid">
+                            <button class="stats-option-btn" onclick="moveStatSlot(-1)">← Move Left</button>
+                            <button class="stats-option-btn" onclick="moveStatSlot(1)">Move Right →</button>
+                        </div>
+                    </div>
+
+                    <div id="stats-n-row" class="stats-config-row" style="display: none;">
+                        <div class="stats-config-label">Average of</div>
+                        <input type="number" id="stats-n-input" value="5" min="3" max="1000" 
+                            style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-item); color: #fff; padding: 10px; border-radius: 8px; width: 100%; font-family: var(--font-mono); text-align: center; margin-bottom: 12px; box-sizing: border-box;"
+                            oninput="setStatConfig('n', this.value)">
+                        
+                        <div id="stats-quick-n" class="stats-option-grid" style="grid-template-columns: repeat(6, 1fr);">
+                            <button class="stats-option-btn" onclick="quickSetN(5)">Ao5</button>
+                            <button class="stats-option-btn" onclick="quickSetN(7)">Ao7</button>
+                            <button class="stats-option-btn" onclick="quickSetN(10)">Ao10</button>
+                            <button class="stats-option-btn" onclick="quickSetN(12)">Ao12</button>
+                            <button class="stats-option-btn" onclick="quickSetN(50)">Ao50</button>
+                            <button class="stats-option-btn" onclick="quickSetN(100)">Ao100</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-buttons">
+                    <button onclick="closeStatsEditModal()" class="modal-btn primary" style="width: 100%;">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Scramble Zoom Modal -->
     <div id="scramble-zoom-overlay" class="modal-overlay" style="z-index: 3000;" onclick="closeZoomScramble()">
@@ -2095,6 +2351,26 @@
                 <div class="modal-buttons">
                     <button onclick="closeZoomScramble()" class="modal-btn secondary">Close Preview</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generic Alert Modal -->
+    <div id="generic-alert-modal" class="modal-overlay" style="z-index: 20000;" onclick="closeAlertModal()">
+        <div class="alert-modal-content" style="max-width: 360px; width: 85%; padding: 30px 24px !important; background-color: var(--bg-modal); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;" onclick="event.stopPropagation()">
+            <div style="margin-bottom: 20px; display: flex; justify-content: center; width: 100%;">
+                <div style="width: 54px; height: 54px; background: rgba(16, 185, 129, 0.12); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--accent-primary);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                </div>
+            </div>
+            <div style="margin-bottom: 12px; width: 100%; text-align: center !important;">
+                <h3 id="alert-title" style="margin: 0; color: #fff; font-size: 20px; font-weight: 750; text-align: center !important; display: block; width: 100%;">Notification</h3>
+            </div>
+            <div style="margin-bottom: 25px; width: 100%; text-align: center !important;">
+                <p id="alert-message" style="margin: 0; font-size: 15px; line-height: 1.5; color: rgba(255,255,255,0.8); text-align: center !important; padding: 0 5px; display: block; width: 100%;"></p>
+            </div>
+            <div style="display: flex; justify-content: center; width: 100%;">
+                <button onclick="closeAlertModal()" class="modal-btn primary" style="width: 100%; max-width: 150px; height: 44px; font-size: 15px; font-weight: 700; border-radius: 12px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);">Got it</button>
             </div>
         </div>
     </div>
@@ -2377,6 +2653,9 @@
 
     <script>
         // --- Variables ---
+        if (typeof statsWidgetConfig === 'undefined') {
+            window.statsWidgetConfig = ['best', 'cur-ao50', 'mean', 'best-ao5', 'cur-ao5', 'best-ao12', 'cur-ao12'];
+        }
         const timerDisplay = document.getElementById('main-timer');
         const instruction = document.getElementById('timer-instruction');
         const eventModalEl = document.getElementById('event-modal');
@@ -2563,11 +2842,355 @@
         }
 
         // --- Folder Management Functions ---
+        let currentSelectedSlotIdx = -1;
 
         /** Returns only solves for the current event AND current folder. */
         function getFilteredSolves() {
             if (!solveHistory) return [];
             return solveHistory.filter(s => s.folderId === currentFolderId);
+        }
+
+        function openStatsEditModal() {
+            const modal = document.getElementById('stats-edit-modal');
+            const preview = document.getElementById('stats-modal-preview');
+            const selectorArea = document.getElementById('stats-selector-area');
+            
+            if (!modal || !preview) return;
+
+            selectorArea.classList.remove('active');
+            
+            const STATS_LABELS = {
+                'best-single': 'pb',
+                'cur-single': 'last',
+                'cur-mean': 'mean',
+                'best-ao5': 'ao5 pb',
+                'best-ao12': 'ao12 pb',
+                'best-ao50': 'ao50 pb',
+                'best-ao100': 'ao100 pb',
+                'cur-ao5': 'ao5',
+                'cur-ao12': 'ao12',
+                'cur-ao50': 'ao50',
+                'cur-ao100': 'ao100'
+            };
+
+            preview.innerHTML = statsWidgetConfig.map((key, i) => {
+                const parsed = parseStatKey(key);
+                const isLegacyFirst = i === 0 && !key.includes('|');
+                const sizeClass = (isLegacyFirst || parsed.size === 'large') ? 'wdg-tile-large' : (parsed.size === 'medium' ? 'wdg-tile-medium' : '');
+                const valClass = (isLegacyFirst || parsed.size === 'large') ? 'wdg-val-pb' : '';
+                const baseKey = key.split('|')[0];
+                return `
+                    <div class="wdg-tile selectable ${sizeClass}" 
+                        data-slot="${i}" 
+                        data-key="${key}" 
+                        draggable="true"
+                        ondragstart="handleStatDragStart(event, ${i})"
+                        ondragover="handleStatDragOver(event)"
+                        ondrop="handleStatDrop(event, ${i})"
+                        ontouchstart="handleStatTouchStart(event, ${i})"
+                        ontouchmove="handleStatTouchMove(event)"
+                        ontouchend="handleStatTouchEnd(event, ${i})"
+                        onclick="selectStatsSlotForEdit(${i}, this)">
+                        <span class="wdg-lbl">${STATS_LABELS[baseKey] || baseKey}</span>
+                        <span class="wdg-val ${valClass}">--</span>
+                    </div>
+                `;
+            }).join('');
+
+            modal.style.display = 'flex';
+            
+            // Re-select if someone was selected
+            if (currentSelectedSlotIdx !== -1) {
+                const tiles = preview.querySelectorAll('.wdg-tile');
+                if (tiles[currentSelectedSlotIdx]) {
+                    selectStatsSlotForEdit(currentSelectedSlotIdx, tiles[currentSelectedSlotIdx]);
+                }
+            }
+            
+            // Populate actual values into preview if available
+            updateStatsUI();
+        }
+
+        let currentEditingConfig = { mod: 'best', type: 'single', n: 5, size: 'normal' };
+        let draggedStatIdx = -1;
+
+        function handleStatDragStart(e, idx) {
+            draggedStatIdx = idx;
+            e.dataTransfer.effectAllowed = 'move';
+            e.target.classList.add('dragging');
+        }
+
+        function handleStatDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleStatTouchStart(e, idx) {
+            draggedStatIdx = idx;
+            // Add a visual class to the touch target
+            e.currentTarget.classList.add('dragging');
+        }
+
+        function handleStatTouchMove(e) {
+            // Prevent scrolling while dragging tiles
+            if (draggedStatIdx !== -1) e.preventDefault();
+        }
+
+        function handleStatTouchEnd(e, idx) {
+            e.currentTarget.classList.remove('dragging');
+            if (draggedStatIdx === -1) return;
+
+            const touch = e.changedTouches[0];
+            const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+            const tile = targetEl ? targetEl.closest('.wdg-tile.selectable') : null;
+
+            if (tile) {
+                const targetIdx = parseInt(tile.dataset.slot);
+                if (targetIdx !== draggedStatIdx) {
+                    const item = statsWidgetConfig.splice(draggedStatIdx, 1)[0];
+                    statsWidgetConfig.splice(targetIdx, 0, item);
+                    currentSelectedSlotIdx = targetIdx;
+                    saveToLocalStorage();
+                    renderWidgets();
+                    openStatsEditModal();
+                }
+            }
+            draggedStatIdx = -1;
+        }
+
+        function handleStatDrop(e, targetIdx) {
+            e.preventDefault();
+            if (draggedStatIdx === -1 || draggedStatIdx === targetIdx) return;
+            
+            const item = statsWidgetConfig.splice(draggedStatIdx, 1)[0];
+            statsWidgetConfig.splice(targetIdx, 0, item);
+            
+            currentSelectedSlotIdx = targetIdx;
+            saveToLocalStorage();
+            renderWidgets();
+            openStatsEditModal();
+        }
+
+        function moveStatSlot(dir) {
+            if (currentSelectedSlotIdx === -1) return;
+            const newIdx = currentSelectedSlotIdx + dir;
+            if (newIdx < 0 || newIdx >= statsWidgetConfig.length) return;
+            
+            const item = statsWidgetConfig.splice(currentSelectedSlotIdx, 1)[0];
+            statsWidgetConfig.splice(newIdx, 0, item);
+            
+            currentSelectedSlotIdx = newIdx;
+            saveToLocalStorage();
+            renderWidgets();
+            openStatsEditModal();
+        }
+
+        function parseStatKey(key) {
+            const [statStr, sizeStr] = key.split('|');
+            const size = sizeStr || 'normal';
+            
+            const parts = statStr.split('-');
+            const mod = parts[0] || 'best';
+            const rest = parts[1] || 'single';
+            let type = 'single';
+            let n = 5;
+            if (rest.startsWith('ao')) {
+                type = 'ao';
+                n = parseInt(rest.replace('ao', '')) || 5;
+            } else if (rest === 'mean') {
+                type = 'mean';
+            }
+            return { mod, type, n, size };
+        }
+
+        function buildStatKey(config) {
+            let typeStr = config.type;
+            if (config.type === 'ao') typeStr = 'ao' + config.n;
+            return `${config.mod}-${typeStr}|${config.size || 'normal'}`;
+        }
+
+        function selectStatsSlotForEdit(idx, el) {
+            currentSelectedSlotIdx = idx;
+            document.querySelectorAll('#stats-modal-preview .wdg-tile').forEach(tile => tile.classList.remove('selected'));
+            el.classList.add('selected');
+
+            const labelSpan = document.getElementById('selected-tile-label');
+            labelSpan.textContent = `#${idx + 1}`;
+            
+            const currentKey = statsWidgetConfig[idx];
+            currentEditingConfig = parseStatKey(currentKey);
+            
+            // Sync UI
+            document.getElementById('stats-n-input').value = currentEditingConfig.n;
+            document.getElementById('stats-n-row').style.display = (currentEditingConfig.type === 'ao' ? 'block' : 'none');
+            document.getElementById('stats-selector-area').classList.add('active');
+            updateConfigButtonStyles();
+        }
+
+        function calculateTotalStatsRows(configArr) {
+            let rows = 0;
+            let currentRowUnits = 0;
+            configArr.forEach(key => {
+                const { size } = parseStatKey(key);
+                let units = (size === 'large' ? 3 : (size === 'medium' ? 1.5 : 1));
+                
+                if (currentRowUnits + units > 3.01) { 
+                    rows++;
+                    currentRowUnits = units;
+                } else {
+                    currentRowUnits += units;
+                    if (currentRowUnits >= 2.99) {
+                        rows++;
+                        currentRowUnits = 0;
+                    }
+                }
+            });
+            if (currentRowUnits > 0.01) rows++;
+            return rows;
+        }
+
+        function addStatSlot() {
+            const newKey = 'best-single|normal';
+            
+            // Check for overflow before adding
+            const tempConfig = [...statsWidgetConfig];
+            if (currentSelectedSlotIdx !== -1) {
+                tempConfig.splice(currentSelectedSlotIdx + 1, 0, newKey);
+            } else {
+                tempConfig.push(newKey);
+            }
+            
+            if (calculateTotalStatsRows(tempConfig) > 3) {
+                alert("The widget is full! You can only have 3 rows of stats to keep the layout clean.");
+                return;
+            }
+            
+            let newIdx = statsWidgetConfig.length;
+            if (currentSelectedSlotIdx !== -1) {
+                newIdx = currentSelectedSlotIdx + 1;
+                statsWidgetConfig.splice(newIdx, 0, newKey);
+            } else {
+                statsWidgetConfig.push(newKey);
+            }
+            
+            saveToLocalStorage();
+            renderWidgets(); // Rebuild main dashboard UI
+            openStatsEditModal(); // Rebuild preview grid
+            
+            // Select the newly added tile
+            const newTiles = document.querySelectorAll('#stats-modal-preview .wdg-tile');
+            if (newTiles[newIdx]) {
+                selectStatsSlotForEdit(newIdx, newTiles[newIdx]);
+            }
+        }
+
+        function deleteStatSlot() {
+            if (currentSelectedSlotIdx === -1) {
+                alert("Please select a stat to remove first.");
+                return;
+            }
+            if (statsWidgetConfig.length <= 1) {
+                alert("You must have at least one stat tile.");
+                return;
+            }
+            statsWidgetConfig.splice(currentSelectedSlotIdx, 1);
+            saveToLocalStorage();
+            currentSelectedSlotIdx = -1;
+            document.getElementById('stats-selector-area').classList.remove('active');
+            
+            renderWidgets(); // Rebuild main dashboard UI
+            openStatsEditModal(); // Rebuild preview grid
+        }
+
+        function setStatConfig(field, value) {
+            const oldVal = currentEditingConfig[field];
+            if (field === 'n') {
+                currentEditingConfig.n = parseInt(value) || 5;
+            } else {
+                currentEditingConfig[field] = value;
+            }
+
+            // Check for overflow if changing size
+            if (field === 'size') {
+                const tempConfig = [...statsWidgetConfig];
+                tempConfig[currentSelectedSlotIdx] = buildStatKey(currentEditingConfig);
+                if (calculateTotalStatsRows(tempConfig) > 3) {
+                    alert("Not enough room to enlarge this block! You can only have 3 rows total.");
+                    currentEditingConfig[field] = oldVal; // Revert
+                    updateConfigButtonStyles();
+                    return;
+                }
+            }
+
+            document.getElementById('stats-n-row').style.display = (currentEditingConfig.type === 'ao' ? 'block' : 'none');
+            updateConfigButtonStyles();
+            updateStatSlot(buildStatKey(currentEditingConfig));
+        }
+
+        function quickSetN(val) {
+            document.getElementById('stats-n-input').value = val;
+            setStatConfig('n', val);
+        }
+
+        function updateConfigButtonStyles() {
+            document.querySelectorAll('#stats-type-btns .stats-option-btn').forEach(btn => {
+                const onclick = btn.getAttribute('onclick');
+                btn.classList.toggle('active', onclick.includes(`'${currentEditingConfig.type}'`));
+            });
+            document.querySelectorAll('#stats-mod-btns .stats-option-btn').forEach(btn => {
+                const onclick = btn.getAttribute('onclick');
+                btn.classList.toggle('active', onclick.includes(`'${currentEditingConfig.mod}'`));
+            });
+            document.querySelectorAll('#stats-size-btns .stats-option-btn').forEach(btn => {
+                const onclick = btn.getAttribute('onclick');
+                btn.classList.toggle('active', onclick.includes(`'${currentEditingConfig.size}'`));
+            });
+            // Update quick N buttons
+            document.querySelectorAll('#stats-quick-n .stats-option-btn').forEach(btn => {
+                const val = btn.getAttribute('onclick').match(/\d+/)[0];
+                btn.classList.toggle('active', currentEditingConfig.type === 'ao' && currentEditingConfig.n == val);
+            });
+        }
+
+        function updateStatSlot(newKey) {
+            if (currentSelectedSlotIdx === -1) return;
+            
+            statsWidgetConfig[currentSelectedSlotIdx] = newKey;
+            saveToLocalStorage();
+            
+            const getShortLabel = (key) => {
+                const { mod, type, n } = parseStatKey(key);
+                if (type === 'single') return mod === 'best' ? 'pb' : (mod === 'cur' ? 'last' : mod);
+                if (type === 'ao') return `ao${n}` + (mod === 'best' ? ' pb' : (mod === 'worst' ? ' worst' : ''));
+                if (type === 'mean') return mod === 'best' ? 'mean pb' : (mod === 'cur' ? 'avg' : 'mean worst');
+                return key;
+            };
+            
+            const selectedTile = document.querySelector('#stats-modal-preview .wdg-tile.selected');
+            if (selectedTile) {
+                selectedTile.querySelector('.wdg-lbl').textContent = getShortLabel(newKey);
+                selectedTile.setAttribute('data-key', newKey);
+                
+                // Live update the block size class in the modal preview
+                const { size } = parseStatKey(newKey);
+                selectedTile.classList.remove('wdg-tile-large', 'wdg-tile-medium');
+                if (size === 'large') selectedTile.classList.add('wdg-tile-large');
+                if (size === 'medium') selectedTile.classList.add('wdg-tile-medium');
+            }
+
+            // RECALCULATE VALUES IMMEDIATELY
+            renderWidgets(); // Rebuilds the dashboard UI with the new classes
+            updateStatsWidgets(); // Ensures the numbers in the modal preview are updated
+        }
+
+        function closeStatsEditModal() {
+            const modal = document.getElementById('stats-edit-modal');
+            if (!modal) return;
+            modal.classList.add('closing');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                modal.classList.remove('closing');
+            }, 200);
         }
 
         function updateFolderLabels() {
@@ -5273,8 +5896,6 @@
                 sortedHistory.sort((a, b) => b.time - a.time);
             }
 
-            // All reads and writes to localStorage happen here only.
-            console.log("DEBUG: dataget.js script loaded.");
             // Apply penalty filters
             sortedHistory = sortedHistory.filter(s => {
                 const p = s.penalty === 'DNF' ? 'DNF' : (typeof s.penalty === 'number' ? '+2' : 'none');
@@ -5345,88 +5966,97 @@
             if (!tileGrids.length) return;
 
             const fmt = (t) => t === Infinity || t === null ? 'DNF' : formatTime(t * 1000);
-
-            // Helpers moved to cubing_logic.js
-
-            // Compute all stats once
             const filteredSolves = getFilteredSolves();
-            const curAo5 = filteredSolves.length >= 5 ? calculateAverage(filteredSolves.slice(-5).map(s => getEffectiveTime(s))) : null;
-            const curAo12 = filteredSolves.length >= 12 ? calculateAverage(filteredSolves.slice(-12).map(s => getEffectiveTime(s))) : null;
-            const curAo50 = filteredSolves.length >= 50 ? calculateAverage(filteredSolves.slice(-50).map(s => getEffectiveTime(s))) : null;
-            const bestAo5Info = getBestAverageDetail(5, filteredSolves);
-            const bestAo12Info = getBestAverageDetail(12, filteredSolves);
-            const meanDetail = getMeanDetail(filteredSolves);
-            const bestSingle = getBestSingleDetail(filteredSolves);
-            const curAo5Detail = getCurrentAvgDetail(5, filteredSolves);
-            const curAo12Detail = getCurrentAvgDetail(12, filteredSolves);
 
-            const vals = {
-                'best': bestSingle ? fmt(getEffectiveTime(bestSingle.solve)) : '--',
-                'cur-ao5': curAo5 !== null ? fmt(curAo5) : '--',
-                'cur-ao12': curAo12 !== null ? fmt(curAo12) : '--',
-                'cur-ao50': curAo50 !== null ? fmt(curAo50) : '--',
-                'best-ao5': bestAo5Info ? fmt(bestAo5Info.average) : '--',
-                'best-ao12': bestAo12Info ? fmt(bestAo12Info.average) : '--',
-                'mean': meanDetail ? fmt(meanDetail.average) : '--'
+            // Build per-tile values
+            const getStatValue = (key) => {
+                const { mod, type, n } = parseStatKey(key);
+                let detail = null;
+                
+                if (type === 'single') {
+                    if (mod === 'best') detail = getBestSingleDetail(filteredSolves);
+                    else if (mod === 'worst') detail = getWorstSingleDetail(filteredSolves);
+                    else detail = { solve: filteredSolves[filteredSolves.length - 1], solveNum: filteredSolves.length };
+                    return detail && detail.solve ? fmt(getEffectiveTime(detail.solve)) : '--';
+                }
+                
+                if (type === 'ao') {
+                    if (mod === 'best') detail = getBestAverageDetail(n, filteredSolves);
+                    else if (mod === 'worst') detail = getWorstAverageDetail(n, filteredSolves);
+                    else detail = getCurrentAvgDetail(n, filteredSolves);
+                    return detail ? fmt(detail.average) : '--';
+                }
+                
+                if (type === 'mean') {
+                    // For now Mean ignores Best/Worst as it's usually just the current set mean
+                    detail = getMeanDetail(filteredSolves);
+                    return detail ? fmt(detail.average) : '--';
+                }
+                return '--';
             };
 
             // Build per-tile tooltip HTML
             function tileTooltip(key) {
+                const { mod, type, n } = parseStatKey(key);
                 const title = (t) => `<div class="wsp-section-title">${t}</div>`;
-                switch (key) {
-                    case 'best': {
-                        if (!bestSingle) return '';
-                        const s = bestSingle.solve, d = new Date(s.date);
-                        return title('Best Single') +
-                            `<div class="wsp-row"><span>#${bestSingle.solveNum}</span><span class="wsp-accent">${fmt(getEffectiveTime(s))}</span></div>` +
-                            `<div class="wsp-sub">${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>` +
-                            (s.scramble ? `<div class="wsp-scramble">${s.scramble}</div>` : '') +
-                            `<button class="wsp-details-btn" onclick="event.stopPropagation(); openSolveActionModal('${s.id}')">View details →</button>`;
-                    }
-                    case 'mean': {
-                        if (!meanDetail) return '';
-                        const cv = (meanDetail.stdDev / meanDetail.average) * 100;
-                        let rating = 'Normal Variance', rc = '#f59e0b';
-                        if (cv < 5) { rating = 'Elite Consistency'; rc = '#10b981'; }
-                        else if (cv < 8) { rating = 'High Consistency'; rc = '#22c55e'; }
-                        else if (cv < 12) { rating = 'Solid Consistency'; rc = '#6366f1'; }
-                        else if (cv >= 20) { rating = 'High Variance'; rc = '#ef4444'; }
-                        return title('Consistency') +
-                            `<div class="wsp-row"><span>Std Dev</span><span class="wsp-accent">${meanDetail.stdDev.toFixed(3)}s</span></div>` +
-                            `<div class="wsp-row"><span>Mean</span><span class="wsp-accent">${fmt(meanDetail.average)}</span></div>` +
-                            `<div class="wsp-badge" style="background:${rc}22;color:${rc};">${rating} (${cv.toFixed(1)}%)</div>` +
-                            `<div class="wsp-sub" style="margin-top:6px;">Based on ${meanDetail.totalSolves} solves</div>`;
-                    }
-                    case 'best-ao5':
-                        if (!bestAo5Info) return '';
-                        return title('Best Ao5 Breakdown') + breakdownRows(bestAo5Info.solves);
-                    case 'best-ao12':
-                        if (!bestAo12Info) return '';
-                        return title('Best Ao12 Breakdown') + breakdownRows(bestAo12Info.solves);
-                    case 'cur-ao5':
-                        if (!curAo5Detail) return '';
-                        return title('Current Ao5') + breakdownRows(curAo5Detail.solves);
-                    case 'cur-ao12':
-                        if (!curAo12Detail) return '';
-                        return title('Current Ao12') + breakdownRows(curAo12Detail.solves);
-                    case 'cur-ao50':
-                        if (curAo50 === null) return '';
-                        return title('Current Ao50') +
-                            `<div class="wsp-row"><span>Value</span><span class="wsp-accent">${fmt(curAo50)}</span></div>` +
-                            `<div class="wsp-sub">Based on last 50 solves</div>`;
-                    default: return '';
+                let detail = null;
+                
+                if (type === 'single') {
+                    if (mod === 'best') detail = getBestSingleDetail(filteredSolves);
+                    else if (mod === 'worst') detail = getWorstSingleDetail(filteredSolves);
+                    else detail = { solve: filteredSolves[filteredSolves.length - 1], solveNum: filteredSolves.length };
+                    
+                    if (!detail || !detail.solve) return '';
+                    const s = detail.solve, d = new Date(s.date);
+                    return title(`${mod === 'best' ? 'Best' : (mod === 'worst' ? 'Worst' : 'Latest')} Single`) +
+                        `<div class="wsp-row"><span>#${detail.solveNum}</span><span class="wsp-accent">${fmt(getEffectiveTime(s))}</span></div>` +
+                        `<div class="wsp-sub">${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>` +
+                        (s.scramble ? `<div class="wsp-scramble">${s.scramble}</div>` : '') +
+                        `<button class="wsp-details-btn" onclick="event.stopPropagation(); openSolveActionModal('${s.id}')">View details →</button>`;
                 }
+
+                if (type === 'ao') {
+                    if (mod === 'best') detail = getBestAverageDetail(n, filteredSolves);
+                    else if (mod === 'worst') detail = getWorstAverageDetail(n, filteredSolves);
+                    else detail = getCurrentAvgDetail(n, filteredSolves);
+                    
+                    if (!detail) return '';
+                    const label = (mod === 'best' ? 'Best' : (mod === 'worst' ? 'Worst' : 'Last')) + ` Ao${n}`;
+                    return title(`${label} Breakdown`) + breakdownRows(detail.solves);
+                }
+
+                if (type === 'mean') {
+                    detail = getMeanDetail(filteredSolves);
+                    if (!detail) return '';
+                    const cv = (detail.stdDev / detail.average) * 100;
+                    return title('Mean (Current Set)') +
+                        `<div class="wsp-row"><span>Mean</span><span class="wsp-accent">${fmt(detail.average)}</span></div>` +
+                        `<div class="wsp-row"><span>Std Dev</span><span class="wsp-accent">${detail.stdDev.toFixed(3)}s</span></div>` +
+                        `<div class="wsp-sub" style="margin-top:6px;">Based on ${detail.totalSolves} solves</div>`;
+                }
+                return '';
             }
 
             tileGrids.forEach(grid => {
-                // Fill values and attach tooltip content to each tile
                 grid.querySelectorAll('.wdg-tile[data-key]').forEach(tile => {
                     const key = tile.dataset.key;
                     const valEl = tile.querySelector('.wdg-val');
-                    if (valEl && vals[key] !== undefined) valEl.textContent = vals[key];
+                    const lblEl = tile.querySelector('.wdg-lbl');
+                    
+                    if (valEl) valEl.textContent = getStatValue(key);
+                    
+                    // Also update label to match dynamic key
+                    const { mod, type, n } = parseStatKey(key);
+                    const getShortLabel = (k) => {
+                        if (type === 'single') return mod === 'best' ? 'pb' : (mod === 'cur' ? 'last' : mod);
+                        if (type === 'ao') return `ao${n}` + (mod === 'best' ? ' pb' : (mod === 'worst' ? ' worst' : ''));
+                        if (type === 'mean') return mod === 'best' ? 'mean pb' : (mod === 'cur' ? 'avg' : 'mean worst');
+                        return k;
+                    };
+                    if (lblEl) lblEl.textContent = getShortLabel(key);
+
                     tile._tooltipContent = tileTooltip(key);
                     tile.style.cursor = tile._tooltipContent ? 'pointer' : 'default';
-                    // Also update the inner div if the tooltip is already in the DOM
                     const inner = tile.querySelector('.wsp-inner');
                     if (inner) inner.innerHTML = tile._tooltipContent;
                 });
@@ -6098,6 +6728,18 @@
                     header.style.justifyContent = 'space-between';
                 }
 
+                if (config === 'stats') {
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'widget-edit-btn';
+                    editBtn.title = 'Edit Stats Widget';
+                    editBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
+                    editBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        if (typeof openStatsEditModal === 'function') openStatsEditModal();
+                    };
+                    header.prepend(editBtn);
+                }
+
                 header.appendChild(dropdownContainer);
                 card.appendChild(header);
 
@@ -6167,36 +6809,37 @@
                         </div>`;
                 } else if (config === 'stats') {
                     card.classList.add('widget-card-stats');
+                    
+                    const STATS_LABELS = {
+                        'best-single': 'pb',
+                        'cur-single': 'last',
+                        'cur-mean': 'mean',
+                        'best-ao5': 'ao5 pb',
+                        'best-ao12': 'ao12 pb',
+                        'best-ao50': 'ao50 pb',
+                        'best-ao100': 'ao100 pb',
+                        'cur-ao5': 'ao5',
+                        'cur-ao12': 'ao12',
+                        'cur-ao50': 'ao50',
+                        'cur-ao100': 'ao100'
+                    };
+
                     content.innerHTML = `
                         <div class="wdg-tile-grid">
-                            <div class="wdg-tile wdg-tile-pb" data-key="best">
-                                <span class="wdg-lbl">pb</span>
-                                <span class="wdg-val wdg-val-pb">--</span>
-                            </div>
-                            <div class="wdg-tile" data-key="cur-ao50">
-                                <span class="wdg-lbl">ao50</span>
-                                <span class="wdg-val">--</span>
-                            </div>
-                            <div class="wdg-tile" data-key="mean">
-                                <span class="wdg-lbl">avg</span>
-                                <span class="wdg-val">--</span>
-                            </div>
-                            <div class="wdg-tile" data-key="best-ao5">
-                                <span class="wdg-lbl">ao5 pb</span>
-                                <span class="wdg-val">--</span>
-                            </div>
-                            <div class="wdg-tile" data-key="cur-ao5">
-                                <span class="wdg-lbl">ao5</span>
-                                <span class="wdg-val">--</span>
-                            </div>
-                            <div class="wdg-tile" data-key="best-ao12">
-                                <span class="wdg-lbl">ao12 pb</span>
-                                <span class="wdg-val">--</span>
-                            </div>
-                            <div class="wdg-tile" data-key="cur-ao12">
-                                <span class="wdg-lbl">ao12</span>
-                                <span class="wdg-val">--</span>
-                            </div>
+                            ${statsWidgetConfig.map((key, idx) => {
+                                const parsed = parseStatKey(key);
+                                const isLegacyFirst = idx === 0 && !key.includes('|');
+                                const sizeClass = (isLegacyFirst || parsed.size === 'large') ? 'wdg-tile-large' : (parsed.size === 'medium' ? 'wdg-tile-medium' : '');
+                                const valClass = (isLegacyFirst || parsed.size === 'large') ? 'wdg-val-pb' : '';
+                                const baseKey = key.split('|')[0];
+                                const label = STATS_LABELS[baseKey] || baseKey;
+                                return `
+                                    <div class="wdg-tile ${sizeClass}" data-slot="${idx}" data-key="${key}">
+                                        <span class="wdg-lbl">${label}</span>
+                                        <span class="wdg-val ${valClass}">--</span>
+                                    </div>
+                                `;
+                            }).join('')}
                         </div>
                     `;
 
@@ -6255,7 +6898,7 @@
                             hideTimer = setTimeout(() => {
                                 const globalTip = getTip();
                                 if (globalTip) globalTip.classList.remove('active');
-                            }, 100);
+                            }, 90);
                         });
                     });
 
@@ -6268,7 +6911,7 @@
                         globalTip.addEventListener('mouseleave', () => {
                             hideTimer = setTimeout(() => {
                                 globalTip.classList.remove('active');
-                            }, 100);
+                            }, 90);
                         });
                         globalTip._hasListeners = true;
                     }
@@ -6446,6 +7089,12 @@
 
             const mouseDownHandler = function (e) {
                 if (e.button !== 0) return; // Only left-click
+
+                // If a nested draggable area already handled this event, don't start another drag here.
+                // This is better than stopPropagation because it allows the event to reach other 
+                // non-draggable listeners if needed.
+                if (e._draggableHandled) return;
+                e._draggableHandled = true;
 
                 startPos = {
                     left: ele.scrollLeft,
