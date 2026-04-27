@@ -1379,12 +1379,13 @@
                             </button>
                             <div id="learning-filter-dropdown" class="sort-dropdown" style="right: 0;">
                                 <div class="sort-dropdown-content">
-                                    <button class="sort-option-btn" onclick="setAlgFilter('none')">Show All</button>
-                                    <button class="sort-option-btn"
+                                    <button class="sort-option-btn filter-opt" data-filter="none" onclick="setAlgFilter('none')">Show All</button>
+                                    <button class="sort-option-btn filter-opt" data-filter="favorites"
                                         onclick="setAlgFilter('favorites')">Favorites</button>
-                                    <button class="sort-option-btn" onclick="setAlgFilter('custom')">User
+                                    <button class="sort-option-btn filter-opt" data-filter="custom" onclick="setAlgFilter('custom')">User
                                         Custom</button>
-                                    <button class="sort-option-btn" onclick="setAlgFilter('recent')">Recent</button>
+                                    <button class="sort-option-btn filter-opt" data-filter="folder" onclick="setAlgFilter('folder')">Current Folder</button>
+                                    <button class="sort-option-btn filter-opt" data-filter="recent" onclick="setAlgFilter('recent')">Recent</button>
                                 </div>
                             </div>
                         </div>
@@ -2340,7 +2341,7 @@
     </div>
 
     <!-- Scramble Zoom Modal -->
-    <div id="scramble-zoom-overlay" class="modal-overlay" style="z-index: 3000;" onclick="closeZoomScramble()">
+    <div id="scramble-zoom-overlay" class="modal-overlay" style="z-index: 20000;" onclick="closeZoomScramble()">
         <div class="modal-content" style="max-width: 550px; width: 92%;" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <h3 style="margin: 0; font-size: 20px; font-weight: 600; color: var(--text-primary);">Scramble
@@ -2348,8 +2349,7 @@
                 <p id="zoom-modal-subtitle" style="color: var(--text-secondary); font-size: 14px; margin-top: 4px;">
                     Large preview of the current scramble</p>
             </div>
-            <div id="zoom-viz-body" class="modal-body"
-                style="display: flex; align-items: center; justify-content: center; padding: 30px; background: rgba(0,0,0,0.15); min-height: 350px;">
+            <div id="zoom-viz-body" class="modal-body zoom-viz-body">
                 <!-- Scramble display injected here dynamically -->
             </div>
             <div class="modal-footer">
@@ -2383,80 +2383,64 @@
     <!-- Custom Delete Confirmation Modal -->
 
     <!-- Solve Details Modal (Info + Quick Penalties) -->
-    <div id="solve-action-modal" class="modal-overlay">
+    <!-- Unified Solve Detail Modal (View & Edit) -->
+    <div id="solve-detail-modal" class="modal-overlay">
         <div class="modal-content" style="max-width: 450px; width: 90%;">
-            <div class="modal-header"
-                style="display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 24px 15px;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 24px 15px;">
                 <div>
-                    <h3 id="action-modal-title"
-                        style="margin: 0; font-size: 20px; font-weight: 600; color: var(--text-primary);">Solve
-                        Details
-                    </h3>
-                    <p id="action-modal-subtitle"
-                        style="color: var(--text-secondary); font-size: 14px; margin-top: 4px;">#1 - 3x3x3</p>
-                    <div id="action-modal-date" style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
-                        Date: --</div>
+                    <h3 id="detail-modal-title" style="margin: 0; font-size: 20px; font-weight: 600; color: var(--text-primary);">Solve Details</h3>
+                    <p id="detail-modal-subtitle" style="color: var(--text-secondary); font-size: 14px; margin-top: 4px;">#1 - 3x3x3</p>
+                    <div id="detail-modal-date" style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">Date: --</div>
                 </div>
-                <div id="action-scramble-viz-container"
+                <div id="detail-scramble-viz-container"
                     style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-item); border-radius: 8px; padding: 4px; display: flex; align-items: center; justify-content: center; width: 80px; height: 80px; flex-shrink: 0; cursor: zoom-in; transition: transform 0.2s; overflow: hidden;"
                     onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1.0)'">
-                    <scramble-display id="action-scramble-viz" style="width: 100%; height: 100%; pointer-events: none;">
+                    <scramble-display id="detail-scramble-viz" style="width: 100%; height: 100%; pointer-events: none;">
                 </div>
             </div>
 
             <div class="modal-body" style="flex: 1; overflow-y: auto; padding: 15px 24px 25px;">
                 <div style="margin-bottom: 20px;">
-                    <div
-                        style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">
-                        Time</div>
-                    <div
-                        style="position: relative; display: flex; align-items: center; justify-content: flex-start; background: rgba(0,0,0,0.1); border: 1px solid var(--border-item); border-radius: 8px; overflow: hidden; transition: border-color 0.2s; padding: 0 12px;">
-                        <input type="text" id="action-solve-time" readonly
-                            style="width: 0; font-size: 24px; font-weight: 700; color: var(--text-primary); font-family: var(--font-mono); background: transparent; border: none; padding: 12px 0; box-sizing: content-box; outline: none; opacity: 0.8;">
-                        <div id="action-solve-effective-display"
+                    <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Time</div>
+                    <div style="position: relative; display: flex; align-items: center; justify-content: flex-start; background: rgba(255,255,255,0.05); border: 1px solid var(--border-item); border-radius: 8px; overflow: hidden; transition: border-color 0.2s; padding: 0 12px;"
+                        onfocusin="this.style.borderColor='var(--accent-primary)'" onfocusout="this.style.borderColor='var(--border-item)'">
+                        <input type="text" id="detail-solve-time" readonly
+                            style="width: 0; font-size: 24px; font-weight: 700; color: var(--accent-primary); font-family: var(--font-mono); background: transparent; border: none; padding: 12px 0; box-sizing: content-box; outline: none;"
+                            oninput="updateDetailModalEffectiveTime()">
+                        <div id="detail-solve-effective-display"
                             style="margin-left: 8px; font-size: 24px; font-weight: 700; color: var(--text-muted); font-family: var(--font-mono); white-space: nowrap; pointer-events: none;">
+                            --
                         </div>
                     </div>
                 </div>
 
                 <div style="margin-bottom: 20px;">
-                    <div
-                        style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">
-                        Scramble</div>
-                    <textarea id="action-solve-scramble" readonly
-                        style="width: 100%; min-height: 60px; font-size: 13px; color: var(--text-secondary); line-height: 1.4; background: rgba(0,0,0,0.1); padding: 12px; border-radius: 8px; border: 1px solid var(--border-item); box-sizing: border-box; outline: none; font-family: var(--font-main); resize: none; opacity: 0.8;"></textarea>
+                    <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Scramble</div>
+                    <textarea id="detail-solve-scramble" readonly oninput="autoSizeTextarea(this)"
+                        style="width: 100%; min-height: 60px; font-size: 13px; color: var(--text-secondary); line-height: 1.4; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border: 1px solid var(--border-item); box-sizing: border-box; outline: none; font-family: var(--font-main); resize: vertical;"></textarea>
                 </div>
 
                 <div style="margin-bottom: 20px;">
-                    <div
-                        style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">
-                        Notes</div>
-                    <textarea id="action-solve-notes" readonly
-                        style="width: 100%; min-height: 60px; background: rgba(0,0,0,0.1); border: 1px solid var(--border-item); border-radius: 8px; color: var(--text-secondary); padding: 12px; font-family: var(--font-main); resize: none; box-sizing: border-box; outline: none; opacity: 0.8;"></textarea>
+                    <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Notes</div>
+                    <textarea id="detail-solve-notes" placeholder="No notes added." readonly oninput="autoSizeTextarea(this)"
+                        style="width: 100%; min-height: 80px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-item); border-radius: 8px; color: #fff; padding: 12px; font-family: var(--font-main); resize: vertical; box-sizing: border-box; outline: none;"></textarea>
                 </div>
 
                 <div style="margin-bottom: 10px;">
-                    <div
-                        style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px;">
-                        Penalties (Editable)</div>
+                    <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px;">Penalties</div>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button id="action-btn-plus2" class="modal-btn secondary"
-                            style="flex: 1; min-width: 80px; padding: 10px;"
-                            onclick="cyclePenaltyInActionModal()">+2</button>
-                        <button id="action-btn-dnf" class="modal-btn secondary"
-                            style="flex: 1; min-width: 80px; padding: 10px;"
-                            onclick="toggleDNFInActionModal()">DNF</button>
-                        <button class="modal-btn secondary"
-                            style="flex: 1; min-width: 80px; padding: 10px; border-color: rgba(255,255,255,0.1);"
-                            onclick="resetPenaltyInActionModal()">Reset</button>
+                        <button id="detail-btn-plus2" class="modal-btn secondary" style="flex: 1; min-width: 80px; padding: 10px;" onclick="cyclePenaltyInDetailModal()">+2</button>
+                        <button id="detail-btn-dnf" class="modal-btn secondary" style="flex: 1; min-width: 80px; padding: 10px;" onclick="toggleDNFInDetailModal()">DNF</button>
+                        <button class="modal-btn secondary" style="flex: 1; min-width: 80px; padding: 10px; border-color: rgba(255,255,255,0.1);" onclick="resetPenaltyInDetailModal()">Reset</button>
                     </div>
                 </div>
             </div>
 
             <div class="modal-footer">
                 <div class="modal-buttons">
-                    <button onclick="handleActionEdit()" class="modal-btn primary">Open Full Editor</button>
-                    <button onclick="closeActionModal()" class="modal-btn secondary">Close</button>
+                    <button id="detail-main-btn" onclick="handleDetailMainAction()" class="modal-btn primary">Edit Solve</button>
+                    <button id="detail-delete-btn" onclick="handleDetailDelete()" class="modal-btn secondary" style="border-color: rgba(239, 68, 68, 0.3); color: #ef4444;">Delete</button>
+                    <button onclick="closeDetailModal()" class="modal-btn secondary">Close</button>
                 </div>
             </div>
         </div>
@@ -2549,19 +2533,38 @@
                                 <button class="sort-option-btn" onclick="setAlgCategory('PLL')">PLL</button>
                                 <button class="sort-option-btn" onclick="setAlgCategory('OLL')">OLL</button>
                                 <button class="sort-option-btn" onclick="setAlgCategory('F2L')">F2L</button>
-                                <button class="sort-option-btn" onclick="setAlgCategory('User')">Other</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 10px;">
-                    <label
-                        style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Algorithm</label>
+                <!-- Hidden Main Algorithm Field (Replaced by Folder Variants) -->
+                <div class="form-group" style="display: none;">
+                    <label style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Algorithm</label>
                     <textarea id="alg-sequence-input" placeholder="R U R' U'..."
                         style="width: 100%; min-height: 100px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-item); border-radius: 8px; color: #fff; padding: 15px; font-family: var(--font-mono); resize: vertical; box-sizing: border-box; outline: none; font-size: 15px;"
                         oninput="updateAlgPreview()"></textarea>
                     <div id="alg-error-msg" class="alg-error-msg">Invalid algorithm sequence</div>
+                </div>
+
+                <!-- Folder Assignments Section -->
+                <div class="form-group" style="margin-top: 24px; margin-bottom: 20px;">
+                    <label style="display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700;">Folder Assignments & Variants</label>
+                    
+                    <div id="alg-folder-dropdown-container" style="position: relative; margin-bottom: 16px;">
+                        <button type="button" id="add-folder-variant-btn" onclick="toggleAlgFolderDropdown(event)" 
+                            style="width: 100%; height: 42px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-item); border-radius: 10px; color: var(--text-secondary); padding: 0 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; font-size: 14px; transition: all 0.2s; outline: none;">
+                            <span>Assign to another folder...</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="opacity: 0.5;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        </button>
+                        <div id="alg-folder-selector-dropdown" class="custom-dropdown-options" style="display: none; position: absolute; bottom: 100%; margin-bottom: 8px; left: 0; width: 100%; background: var(--bg-modal); border: 1px solid var(--border-item); border-radius: 12px; z-index: 2000; box-shadow: 0 -10px 30px rgba(0,0,0,0.6); padding: 6px; max-height: 200px; overflow-y: auto;">
+                            <!-- Folder options injected by JS -->
+                        </div>
+                    </div>
+
+                    <div id="alg-folder-variants-rows" style="display: flex; flex-direction: column; gap: 10px;">
+                        <!-- Active folder variants appear here -->
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -2575,86 +2578,7 @@
     </div>
 
 
-    <div id="edit-solve-modal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 450px; width: 90%;">
-            <div class="modal-header"
-                style="display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 24px 15px;">
-                <div>
-                    <h3 id="edit-modal-title"
-                        style="margin: 0; font-size: 20px; font-weight: 600; color: var(--text-primary);">Solve
-                        Details
-                    </h3>
-                    <p id="edit-modal-subtitle" style="color: var(--text-secondary); font-size: 14px; margin-top: 4px;">
-                        #1 - 3x3x3</p>
-                    <div id="edit-solve-date" style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
-                        Date:
-                        --</div>
-                </div>
-                <div id="edit-scramble-viz-container"
-                    style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-item); border-radius: 8px; padding: 4px; display: flex; align-items: center; justify-content: center; width: 80px; height: 80px; flex-shrink: 0; cursor: zoom-in; transition: transform 0.2s; overflow: hidden;"
-                    onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1.0)'">
-                    <scramble-display id="edit-scramble-viz" style="width: 100%; height: 100%; pointer-events: none;">
-                </div>
-            </div>
 
-            <div class="modal-body" style="flex: 1; overflow-y: auto; padding: 15px 24px 25px;">
-                <div style="margin-bottom: 20px;">
-                    <div
-                        style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">
-                        Time</div>
-                    <div style="position: relative; display: flex; align-items: center; justify-content: flex-start; background: rgba(255,255,255,0.05); border: 1px solid var(--border-item); border-radius: 8px; overflow: hidden; transition: border-color 0.2s; padding: 0 12px;"
-                        onfocusin="this.style.borderColor='var(--accent-primary)'"
-                        onfocusout="this.style.borderColor='var(--border-item)'">
-                        <input type="text" id="edit-solve-time"
-                            style="width: 0; font-size: 24px; font-weight: 700; color: var(--accent-primary); font-family: var(--font-mono); background: transparent; border: none; padding: 12px 0; box-sizing: content-box; outline: none;"
-                            oninput="updateEditModalEffectiveTime()">
-                        <div id="edit-solve-effective-display"
-                            style="margin-left: 8px; font-size: 24px; font-weight: 700; color: var(--text-muted); font-family: var(--font-mono); white-space: nowrap; pointer-events: none;">
-                            --
-                        </div>
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <div
-                        style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">
-                        Scramble</div>
-                    <textarea id="edit-solve-scramble"
-                        style="width: 100%; min-height: 60px; font-size: 13px; color: var(--text-secondary); line-height: 1.4; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border: 1px solid var(--border-item); box-sizing: border-box; outline: none; font-family: var(--font-main); resize: vertical;"></textarea>
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <div
-                        style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">
-                        Notes</div>
-                    <textarea id="edit-solve-notes" placeholder="Add some notes about this solve..."
-                        style="width: 100%; min-height: 80px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-item); border-radius: 8px; color: #fff; padding: 12px; font-family: var(--font-main); resize: vertical; box-sizing: border-box; outline: none;"></textarea>
-                </div>
-
-                <div style="margin-bottom: 10px;">
-                    <div
-                        style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px;">
-                        Penalties</div>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button id="edit-btn-plus2" class="modal-btn secondary"
-                            style="flex: 1; min-width: 80px; padding: 10px;" onclick="cyclePenaltyInModal()">+2</button>
-                        <button id="edit-btn-dnf" class="modal-btn secondary"
-                            style="flex: 1; min-width: 80px; padding: 10px;" onclick="toggleDNFInModal()">DNF</button>
-                        <button class="modal-btn secondary"
-                            style="flex: 1; min-width: 80px; padding: 10px; border-color: rgba(255,255,255,0.1);"
-                            onclick="resetPenaltyInModal()">Reset</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <div class="modal-buttons">
-                    <button onclick="saveSolveEdit()" class="modal-btn primary">Save Changes</button>
-                    <button onclick="closeEditModal()" class="modal-btn secondary">Cancel</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script>
         // --- Variables ---
@@ -3201,10 +3125,17 @@
         function updateFolderLabels() {
             const list = eventFolders[currentEvent] || [];
             const folder = list.find(s => s.id === currentFolderId) || list[0] || { name: 'Default' };
+            const event = wcaEvents.find(e => e.id === currentEvent) || { name: '3x3x3' };
+            
             const label = document.getElementById('top-bar-folder-label');
             const mobileLabel = document.getElementById('current-folder-label-mobile');
             if (label) label.textContent = folder.name;
             if (mobileLabel) mobileLabel.textContent = folder.name;
+            
+            const eventLabel = document.getElementById('current-event-display-name');
+            const eventMobileLabel = document.getElementById('current-event-mobile');
+            if (eventLabel) eventLabel.textContent = event.name;
+            if (eventMobileLabel) eventMobileLabel.textContent = event.id.toUpperCase();
         }
 
         // --- Modal Animation Helper ---
@@ -3224,9 +3155,13 @@
 
         window.openConfirmModal = function ({ title, body, iconSvg, iconColor = '#ef4444',
             confirmText = 'Confirm', cancelText = 'Cancel',
-            onConfirm, onCancel }) {
+            onConfirm, onCancel, extraHtml = '' }) {
             document.getElementById('confirm-modal-title').textContent = title;
             document.getElementById('confirm-modal-body').innerHTML = body;
+            
+            const extra = document.getElementById('confirm-modal-extra');
+            if (extra) extra.innerHTML = extraHtml;
+
             const icon = document.getElementById('confirm-modal-icon');
             icon.style.background = `rgba(${iconColor === '#ef4444' ? '239,68,68' : '168,85,247'}, 0.1)`;
             icon.style.color = iconColor;
@@ -3254,7 +3189,7 @@
                 if (typeof openMinigameExitModal === 'function') openMinigameExitModal();
                 return;
             }
-            document.getElementById('folder-modal-event').textContent = currentEvent.toUpperCase();
+            document.getElementById('folder-mgmt-title').textContent = 'Folders';
             populateFolderList();
             document.getElementById('folder-mgmt-modal').style.display = 'flex';
         };
@@ -3278,50 +3213,59 @@
                 card.onclick = () => switchFolder(folder.id);
 
                 // Options Button (...)
-                const optBtn = document.createElement('button');
-                optBtn.className = 'folder-options-btn';
-                optBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>';
+                // PROTECTED FOLDERS: Prevent edit/delete for system defaults
+                const protectedIds = ['default', 'sess_oh', 'sess_bld', 'sess_fmc'];
+                const isProtected = protectedIds.includes(folder.id);
 
-                // Options Menu
-                const menu = document.createElement('div');
-                menu.className = 'folder-options-menu';
+                if (!isProtected) {
+                    const optBtn = document.createElement('button');
+                    optBtn.className = 'folder-options-btn';
+                    optBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>';
 
-                const editOpt = document.createElement('div');
-                editOpt.className = 'folder-menu-item';
-                editOpt.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg> Edit';
-                editOpt.onclick = (e) => {
-                    e.stopPropagation();
-                    menu.classList.remove('active');
-                    openFolderEditModal(folder.id);
-                };
+                    // Options Menu
+                    const menu = document.createElement('div');
+                    menu.className = 'folder-options-menu';
 
-                menu.appendChild(editOpt);
-
-                if (list.length > 1) {
-                    const delOpt = document.createElement('div');
-                    delOpt.className = 'folder-menu-item delete';
-                    delOpt.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Delete';
-                    delOpt.onclick = (e) => {
+                    const editOpt = document.createElement('div');
+                    editOpt.className = 'folder-menu-item';
+                    editOpt.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg> Edit';
+                    editOpt.onclick = (e) => {
                         e.stopPropagation();
                         menu.classList.remove('active');
-                        openFolderDeleteModal(folder.id);
+                        openFolderEditModal(folder.id);
                     };
-                    menu.appendChild(delOpt);
+
+                    menu.appendChild(editOpt);
+
+                    if (list.length > 1) {
+                        const delOpt = document.createElement('div');
+                        delOpt.className = 'folder-menu-item delete';
+                        delOpt.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Delete';
+                        delOpt.onclick = (e) => {
+                            e.stopPropagation();
+                            menu.classList.remove('active');
+                            openFolderDeleteModal(folder.id);
+                        };
+                        menu.appendChild(delOpt);
+                    }
+
+                    optBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        // Close other menus and reset z-indices
+                        document.querySelectorAll('.folder-options-menu').forEach(m => {
+                            if (m !== menu) {
+                                m.classList.remove('active');
+                                m.closest('.folder-card').style.zIndex = '';
+                            }
+                        });
+
+                        const isActive = menu.classList.toggle('active');
+                        card.style.zIndex = isActive ? '1000' : '';
+                    };
+
+                    card.appendChild(optBtn);
+                    card.appendChild(menu);
                 }
-
-                optBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    // Close other menus and reset z-indices
-                    document.querySelectorAll('.folder-options-menu').forEach(m => {
-                        if (m !== menu) {
-                            m.classList.remove('active');
-                            m.closest('.folder-card').style.zIndex = '';
-                        }
-                    });
-
-                    const isActive = menu.classList.toggle('active');
-                    card.style.zIndex = isActive ? '1000' : '';
-                };
 
                 const nameWrap = document.createElement('div');
                 nameWrap.className = 'folder-card-name';
@@ -3332,8 +3276,6 @@
                 countWrap.className = 'folder-card-count';
                 countWrap.textContent = `${solveCount} solves`;
 
-                card.appendChild(optBtn);
-                card.appendChild(menu);
                 card.appendChild(nameWrap);
                 card.appendChild(countWrap);
                 container.appendChild(card);
@@ -3341,10 +3283,12 @@
 
             // Global click to close menus
             document.addEventListener('click', (e) => {
+                // Folder Options Menu
                 if (!e.target.closest('.folder-options-btn')) {
                     document.querySelectorAll('.folder-options-menu').forEach(m => {
                         m.classList.remove('active');
-                        m.closest('.folder-card').style.zIndex = '';
+                        const card = m.closest('.folder-card');
+                        if (card) card.style.zIndex = '';
                     });
                 }
             });
@@ -3414,30 +3358,108 @@
 
         window.openFolderDeleteModal = function (id) {
             folderToDeleteId = id;
+            
+            // Generate list of other folders to move solves to
+            const folders = eventFolders[currentEvent] || [];
+            const otherFolders = folders.filter(f => f.id !== id);
+            
+            let extraHtml = '';
+            if (otherFolders.length > 0) {
+                extraHtml = `
+                    <label style="display: block; font-size: 10px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.1em;">Safe Deletion</label>
+                    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">Move contained solves to:</p>
+                    <div id="custom-delete-dropdown" style="position: relative; width: 100%;">
+                        <div class="custom-dropdown-trigger" style="width: 100%; height: 42px; background: var(--bg-item); border: 1px solid var(--border-item); border-radius: 10px; color: #fff; padding: 0 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; font-size: 14px; transition: all 0.2s;">
+                            <span id="custom-dropdown-value" style="color: #ef4444; font-weight: 600;">-- Delete Permanently --</span>
+                            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style="opacity: 0.5;"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </div>
+                        <div class="custom-dropdown-options" style="display: none; position: absolute; top: calc(100% + 6px); left: 0; width: 100%; background: #1a1a1a; border: 1px solid var(--border-item); border-radius: 12px; z-index: 9999; box-shadow: 0 10px 30px rgba(0,0,0,0.8); padding: 6px; max-height: 200px; overflow-y: auto;">
+                            <div class="custom-option" data-value="none" style="padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; color: #ef4444; font-weight: 700; text-align: left; transition: background 0.2s;">-- Delete Permanently --</div>
+                            ${otherFolders.map(f => `<div class="custom-option" data-value="${f.id}" style="padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; color: #fff; text-align: left; transition: background 0.2s;">${f.name}</div>`).join('')}
+                        </div>
+                        <input type="hidden" id="move-solves-select" value="none">
+                    </div>
+                `;
+            }
+
             openConfirmModal({
                 title: 'Delete Folder?',
-                body: 'Are you sure you want to delete this folder? This will remove all solves within it. This cannot be undone.',
+                body: 'Are you sure you want to delete this folder? By default, all solves within it will be removed.',
                 iconSvg: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6" /></svg>`,
                 iconColor: '#ef4444',
                 confirmText: 'Confirm',
                 cancelText: 'Cancel',
+                extraHtml: extraHtml,
                 onConfirm: confirmDeleteFolder
             });
+
+            // Handle custom dropdown logic
+            setTimeout(() => {
+                const trigger = document.querySelector('.custom-dropdown-trigger');
+                const options = document.querySelector('.custom-dropdown-options');
+                const input = document.getElementById('move-solves-select');
+                const valueSpan = document.getElementById('custom-dropdown-value');
+                
+                if (trigger && options) {
+                    trigger.onclick = (e) => {
+                        e.stopPropagation();
+                        options.style.display = options.style.display === 'none' ? 'block' : 'none';
+                        trigger.style.borderColor = options.style.display === 'block' ? 'var(--accent-primary)' : 'var(--border-item)';
+                    };
+                    
+                    document.querySelectorAll('.custom-option').forEach(opt => {
+                        opt.onclick = () => {
+                            const val = opt.getAttribute('data-value');
+                            input.value = val;
+                            valueSpan.textContent = opt.textContent;
+                            valueSpan.style.color = val === 'none' ? '#ef4444' : '#fff';
+                            valueSpan.style.fontWeight = val === 'none' ? '600' : '500';
+                            options.style.display = 'none';
+                            trigger.style.borderColor = 'var(--border-item)';
+                        };
+                        
+                        opt.onmouseover = () => opt.style.background = 'rgba(255,255,255,0.05)';
+                        opt.onmouseout = () => opt.style.background = 'transparent';
+                    });
+                    
+                    document.addEventListener('click', () => {
+                        options.style.display = 'none';
+                        trigger.style.borderColor = 'var(--border-item)';
+                    }, { once: true });
+                }
+            }, 50);
         };
-        window.closeFolderDeleteModal = function () {
-            closeConfirmModal();
-        };
+
         window.confirmDeleteFolder = function () {
             if (!folderToDeleteId) return;
             const list = eventFolders[currentEvent] || [];
             const idx = list.findIndex(s => s.id === folderToDeleteId);
+            
             if (idx > -1) {
-                allEvents[currentEvent] = allEvents[currentEvent].filter(s => s.folderId !== folderToDeleteId);
+                // MOVE SOLVES LOGIC
+                const moveSelect = document.getElementById('move-solves-select');
+                const targetFolderId = moveSelect ? moveSelect.value : 'none';
+                
+                if (targetFolderId !== 'none') {
+                    // Transfer solves to target folder
+                    allEvents[currentEvent].forEach(s => {
+                        if (s.folderId === folderToDeleteId) {
+                            s.folderId = targetFolderId;
+                        }
+                    });
+                    console.log(`Moved solves from ${folderToDeleteId} to ${targetFolderId}`);
+                } else {
+                    // Delete solves permanently
+                    allEvents[currentEvent] = allEvents[currentEvent].filter(s => s.folderId !== folderToDeleteId);
+                }
+
                 solveHistory = allEvents[currentEvent];
                 list.splice(idx, 1);
+                
                 if (currentFolderId === folderToDeleteId) {
                     currentFolderId = list[0].id;
                 }
+                
                 updateFolderLabels();
                 saveToLocalStorage();
                 updateStatsUI();
@@ -4086,8 +4108,8 @@
         }
 
         window.goToSolveFromHistory = function (id) {
-            if (typeof openSolveActionModal === 'function') {
-                openSolveActionModal(id);
+            if (typeof openSolveDetailModal === 'function') {
+                openSolveDetailModal(id);
             }
         };
 
@@ -4290,7 +4312,7 @@
             isActuallyInspecting = false;
 
             let solveTime = currentTime / 1000;
-            if (solveTime > 0.01) { // Lowered guard to allow very fast solves
+            if (solveTime >= 0.001) { // Lowered guard to allow very fast solves
                 const scrambleEl = document.getElementById('scramble-text-display');
                 let sc = scrambleEl ? scrambleEl.textContent.trim() : '';
 
@@ -4429,7 +4451,17 @@
         };
 
 
-        window.openSolveActionModal = function (id) {
+        // --- UI Helpers ---
+        function autoSizeTextarea(textareaEl) {
+            if (!textareaEl) return;
+            textareaEl.style.height = 'auto';
+            textareaEl.style.height = (textareaEl.scrollHeight) + 'px';
+        }
+
+        // --- Unified Solve Detail Modal Logic ---
+        let isDetailEditMode = false;
+
+        window.openSolveDetailModal = function (id, startInEditMode = false) {
             id = parseInt(id, 10);
             const result = getSolveById(id);
             if (!result) return;
@@ -4437,37 +4469,49 @@
             const { solve, eventId } = result;
             currentlyViewingSolveId = id;
             currentlyViewingEvent = eventId;
+            isDetailEditMode = startInEditMode; 
 
             const history = allEvents[eventId] || [];
             const index = history.findIndex(s => s.id === id);
 
             const effTime = getEffectiveTime(solve);
-            const hasPlus2 = typeof solve.penalty === 'number';
-            const timeDisp = (hasPlus2 ? '+' : '') + formatTime(effTime * 1000);
-            const rawTimeDisp = formatTime(solve.time * 1000);
             const solveDate = new Date(solve.date);
 
             const eventObj = wcaEvents.find(e => e.id === eventId);
-            document.getElementById('action-modal-subtitle').textContent = `#${index + 1} - ${eventObj ? eventObj.name : eventId}`;
-            document.getElementById('action-modal-date').textContent = `Date: ${solveDate.toLocaleDateString()} ${solveDate.toLocaleTimeString()}`;
+            const subtitle = document.getElementById('detail-modal-subtitle');
+            if (subtitle) subtitle.textContent = `#${index + 1} - ${eventObj ? eventObj.name : eventId}`;
+            
+            const dateEl = document.getElementById('detail-modal-date');
+            if (dateEl) dateEl.textContent = `Date: ${solveDate.toLocaleDateString()} ${solveDate.toLocaleTimeString()}`;
 
-            const timeEl = document.getElementById('action-solve-time');
-            const effDispEl = document.getElementById('action-solve-effective-display');
-            if (timeEl) {
-                timeEl.value = rawTimeDisp;
-                if (hasPlus2) timeEl.classList.add('plus2-text');
-                else timeEl.classList.remove('plus2-text');
-                autoSizeInput(timeEl);
-            }
-            if (effDispEl) {
-                effDispEl.textContent = hasPlus2 ? `(${timeDisp})` : '';
-                effDispEl.style.color = hasPlus2 ? "#f59e0b" : "var(--text-muted)";
-                effDispEl.style.fontFamily = "var(--font-mono)";
-            }
-            document.getElementById('action-solve-scramble').value = solve.scramble || 'No scramble recorded';
-            document.getElementById('action-solve-notes').value = solve.notes || '';
+            // Resetting View/Edit UI states
+            document.getElementById('detail-main-btn').textContent = isDetailEditMode ? 'Save Changes' : 'Edit Solve';
+            document.getElementById('detail-solve-time').readOnly = !isDetailEditMode;
+            document.getElementById('detail-solve-scramble').readOnly = !isDetailEditMode;
+            document.getElementById('detail-solve-notes').readOnly = !isDetailEditMode;
+            document.getElementById('detail-solve-notes').placeholder = isDetailEditMode ? "Add some notes about this solve..." : "No notes added.";
 
-            const vizContainer = document.getElementById('action-scramble-viz-container');
+            // Populating fields
+            const timeInput = document.getElementById('detail-solve-time');
+            if (timeInput) {
+                timeInput.value = formatTime(solve.time * 1000);
+                autoSizeInput(timeInput);
+            }
+
+            const scrambleInput = document.getElementById('detail-solve-scramble');
+            if (scrambleInput) {
+                scrambleInput.value = solve.scramble || '';
+                autoSizeTextarea(scrambleInput);
+            }
+
+            const notesInput = document.getElementById('detail-solve-notes');
+            if (notesInput) {
+                notesInput.value = solve.notes || '';
+                autoSizeTextarea(notesInput);
+            }
+
+            // Visualizer
+            const vizContainer = document.getElementById('detail-scramble-viz-container');
             if (vizContainer) {
                 const puzzleMap = {
                     '3x3': '333', '2x2': '222', '4x4': '444', '5x5': '555', '6x6': '666', '7x7': '777',
@@ -4482,122 +4526,158 @@
                 const isNxN = ['222', '333', '444', '555', '666', '777'].includes(pzl);
                 const tag = isNxN ? 'custom-scramble-display' : 'scramble-display';
 
-                vizContainer.innerHTML = `
-                    <${tag} id="action-scramble-viz" 
-                        event="${pzl}"
-                        scramble="${scr.replace(/"/g, '&quot;')}"
-                        style="display: block; width: 100%; height: 100%; min-height: 80px; max-width: 240px; margin: auto; pointer-events: none; opacity: 1;">
-                    </${tag}>
-                `;
-
+                vizContainer.innerHTML = `<${tag} id="detail-scramble-viz" event="${pzl}" scramble="${scr.replace(/"/g, '&quot;')}" style="display: block; width: 100%; height: 100%; pointer-events: none; opacity: 1;"></${tag}>`;
                 vizContainer.onclick = () => zoomScramble(scr, pzl);
             }
 
-            updateActionModalPenaltyButtons();
+            updateDetailModalPenaltyButtons();
+            updateDetailModalEffectiveTime();
+            
+            const modal = document.getElementById('solve-detail-modal');
+            if (modal) modal.style.display = 'flex';
 
-            // Re-assign listeners explicitly to fix ReferenceError and ensure UI sync
-            const btnPlus2 = document.getElementById('action-btn-plus2');
-            const btnDNF = document.getElementById('action-btn-dnf');
-            const btnReset = document.querySelector('button[onclick="resetPenaltyInActionModal()"]');
-
-            if (btnPlus2) btnPlus2.onclick = () => { cyclePenaltyInActionModal(); syncActionModalTime(); };
-            if (btnDNF) btnDNF.onclick = () => { toggleDNFInActionModal(); syncActionModalTime(); };
-            if (btnReset) btnReset.onclick = () => { resetPenaltyInActionModal(); syncActionModalTime(); };
-
-            document.getElementById('solve-action-modal').style.display = 'flex';
+            if (isDetailEditMode) {
+                setTimeout(() => document.getElementById('detail-solve-time').focus(), 50);
+            }
         };
 
-        function syncActionModalTime() {
-            const result = getSolveById(currentlyViewingSolveId);
-            if (!result) return;
-            const { solve } = result;
-            const effTime = getEffectiveTime(solve);
-            const hasPlus2 = typeof solve.penalty === 'number';
-            const timeDisp = (hasPlus2 ? '+' : '') + formatTime(effTime * 1000);
-            const rawTimeDisp = formatTime(solve.time * 1000);
+        window.handleDetailMainAction = function() {
+            if (!isDetailEditMode) {
+                // Switch to Edit Mode
+                isDetailEditMode = true;
+                document.getElementById('detail-main-btn').textContent = 'Save Changes';
+                document.getElementById('detail-solve-time').readOnly = false;
+                document.getElementById('detail-solve-scramble').readOnly = false;
+                document.getElementById('detail-solve-notes').readOnly = false;
+                document.getElementById('detail-solve-notes').placeholder = "Add some notes about this solve...";
+                document.getElementById('detail-solve-time').focus();
+                
+                // Ensure textareas resize when they become editable (placeholders/content might change layout)
+                autoSizeTextarea(document.getElementById('detail-solve-scramble'));
+                autoSizeTextarea(document.getElementById('detail-solve-notes'));
 
-            const timeEl = document.getElementById('action-solve-time');
-            const effDispEl = document.getElementById('action-solve-effective-display');
-            if (timeEl) {
-                timeEl.value = rawTimeDisp;
-                if (hasPlus2) timeEl.classList.add('plus2-text');
-                else timeEl.classList.remove('plus2-text');
-                autoSizeInput(timeEl);
-            }
-            if (effDispEl) {
-                effDispEl.textContent = hasPlus2 ? `(${timeDisp})` : '';
-                effDispEl.style.color = hasPlus2 ? "#f59e0b" : "var(--text-muted)";
-                effDispEl.style.fontFamily = "var(--font-mono)";
-            }
-        }
-
-        function updateActionModalPenaltyButtons() {
-            const result = getSolveById(currentlyViewingSolveId);
-            if (!result) return;
-            const { solve } = result;
-
-            const btnPlus2 = document.getElementById('action-btn-plus2');
-            const btnDNF = document.getElementById('action-btn-dnf');
-
-            btnPlus2.classList.remove('active');
-            btnDNF.classList.remove('active');
-
-            if (typeof solve.penalty === 'number') {
-                btnPlus2.classList.add('active');
-                btnPlus2.textContent = `+${solve.penalty}`;
+                updateDetailModalPenaltyButtons(); // Refresh visual state
             } else {
-                btnPlus2.textContent = '+2';
+                saveDetailModalChanges();
             }
+        };
 
-            if (solve.penalty === 'DNF') {
-                btnDNF.classList.add('active');
-            }
-        }
+        window.closeDetailModal = function () {
+            animateModalClose('solve-detail-modal');
+        };
 
-        window.cyclePenaltyInActionModal = function () {
+        window.updateDetailModalPenaltyButtons = function () {
             const result = getSolveById(currentlyViewingSolveId);
             if (!result) return;
             const { solve } = result;
 
-            // Cycle: null → 2 → 4 → 6 → 8 → 10 → 12 → 14 → 16 → null
+            const btnPlus2 = document.getElementById('detail-btn-plus2');
+            const btnDNF = document.getElementById('detail-btn-dnf');
+            const btnReset = btnDNF ? btnDNF.nextElementSibling : null; // Reset button
+            if (!btnPlus2 || !btnDNF) return;
+
+            const hasPlus2 = typeof solve.penalty === 'number';
+            btnPlus2.textContent = hasPlus2 ? `+${solve.penalty}` : '+2';
+            btnPlus2.className = hasPlus2 ? 'modal-btn primary' : 'modal-btn secondary';
+
+            const isDNF = solve.penalty === 'DNF';
+            btnDNF.className = isDNF ? 'modal-btn primary' : 'modal-btn secondary';
+
+            // Visual cue for disabled state
+            const buttons = [btnPlus2, btnDNF, btnReset];
+            buttons.forEach(btn => {
+                if (btn) {
+                    btn.style.opacity = isDetailEditMode ? '1' : '0.4';
+                    btn.style.cursor = isDetailEditMode ? 'pointer' : 'not-allowed';
+                }
+            });
+
+            updateDetailModalEffectiveTime();
+        };
+
+        window.updateDetailModalEffectiveTime = function () {
+            const result = getSolveById(currentlyViewingSolveId);
+            if (!result) return;
+            const { solve } = result;
+
+            const timeInput = document.getElementById('detail-solve-time');
+            const effDisp = document.getElementById('detail-solve-effective-display');
+            if (!timeInput || !effDisp) return;
+
+            const timeVal = timeInput.value;
+            const rawSec = parseTimeToSeconds(timeVal);
+            autoSizeInput(timeInput);
+
+            if (rawSec === Infinity || solve.penalty === 'DNF') {
+                effDisp.textContent = "(DNF)";
+                effDisp.style.color = "#ef4444";
+            } else {
+                const p = typeof solve.penalty === 'number' ? solve.penalty : 0;
+                const total = rawSec + p;
+                const hasPenalty = p > 0;
+                effDisp.textContent = `(${hasPenalty ? '+' : ''}${formatTime(total * 1000)})`;
+                effDisp.style.color = hasPenalty ? "#f59e0b" : "var(--text-muted)";
+            }
+        };
+
+        window.cyclePenaltyInDetailModal = function () {
+            if (!isDetailEditMode) return;
+            const result = getSolveById(currentlyViewingSolveId);
+            if (!result) return;
+            const { solve } = result;
             const current = typeof solve.penalty === 'number' ? solve.penalty : 0;
-            const next = current >= 16 ? null : (current === 0 ? 2 : current + 2);
-            solve.penalty = next;
-
-            saveEvents();
-            updateActionModalPenaltyButtons();
-            updateStatsUI();
+            solve.penalty = current >= 16 ? null : (current === 0 ? 2 : current + 2);
+            updateDetailModalPenaltyButtons();
         };
 
-        window.toggleDNFInActionModal = function () {
+        window.toggleDNFInDetailModal = function () {
+            if (!isDetailEditMode) return;
             const result = getSolveById(currentlyViewingSolveId);
             if (!result) return;
             const { solve } = result;
-
-            solve.penalty = (solve.penalty === 'DNF') ? null : 'DNF';
-
-            saveEvents();
-            updateActionModalPenaltyButtons();
-            updateStatsUI();
+            solve.penalty = solve.penalty === 'DNF' ? null : 'DNF';
+            updateDetailModalPenaltyButtons();
         };
 
-        window.resetPenaltyInActionModal = function () {
+        window.resetPenaltyInDetailModal = function () {
+            if (!isDetailEditMode) return;
             const result = getSolveById(currentlyViewingSolveId);
             if (!result) return;
             const { solve } = result;
-
             solve.penalty = null;
+            updateDetailModalPenaltyButtons();
+        };
 
-            saveEvents();
-            updateActionModalPenaltyButtons();
+        window.saveDetailModalChanges = function () {
+            const result = getSolveById(currentlyViewingSolveId);
+            if (!result) return;
+            const { solve } = result;
+
+            const timeVal = document.getElementById('detail-solve-time').value;
+            const scrambleVal = document.getElementById('detail-solve-scramble').value;
+            const notesVal = document.getElementById('detail-solve-notes').value;
+
+            const newRawSeconds = parseTimeToSeconds(timeVal);
+            if (newRawSeconds !== Infinity) {
+                solve.time = Math.max(0, newRawSeconds);
+            } else {
+                solve.penalty = 'DNF';
+            }
+
+            solve.scramble = scrambleVal;
+            solve.notes = notesVal;
+
+            saveToLocalStorage();
             updateStatsUI();
+            closeDetailModal();
+        };
+
+        window.handleDetailDelete = function () {
+            closeDetailModal();
+            openDeleteConfirmation(currentlyViewingSolveId);
         };
 
         let currentlyDeletingId = null;
-        window.handleActionDelete = function () {
-            closeActionModal();
-            openDeleteConfirmation(currentlyViewingSolveId);
-        };
 
         window.openDeleteConfirmation = function (id, force = false) {
             if (id !== undefined && id !== null) {
@@ -4664,70 +4744,20 @@
             }
         };
 
-        window.closeActionModal = function () {
-            animateModalClose('solve-action-modal');
-        };
+        // --- UI Helpers ---
+        function autoSizeInput(inputEl) {
+            const measure = document.getElementById('text-measure-span');
+            if (!measure || !inputEl) return;
+            measure.style.fontFamily = getComputedStyle(inputEl).fontFamily;
+            measure.style.fontSize = getComputedStyle(inputEl).fontSize;
+            measure.style.fontWeight = getComputedStyle(inputEl).fontWeight;
+            measure.textContent = inputEl.value || inputEl.placeholder || "";
+            inputEl.style.width = (measure.offsetWidth + 2) + "px";
+        }
 
-        window.handleActionEdit = function () {
-            closeActionModal();
-            openEditModal(currentlyViewingSolveId);
-        };
 
-        window.openEditModal = function (id) {
-            id = parseInt(id, 10);
-            const result = getSolveById(id);
-            if (!result) return;
 
-            const { solve, eventId } = result;
-            currentlyViewingSolveId = id;
-            currentlyViewingEvent = eventId;
 
-            const history = allEvents[eventId] || [];
-            const index = history.findIndex(s => s.id === id);
-
-            document.getElementById('edit-modal-subtitle').textContent = `#${index + 1} - ${eventId}`;
-            const solveDate = new Date(solve.date);
-            document.getElementById('edit-solve-date').textContent = `Date: ${solveDate.toLocaleDateString()} ${solveDate.toLocaleTimeString()}`;
-
-            // Use RAW time for the editor to avoid double-penalty bugs
-            document.getElementById('edit-solve-time').value = formatTime(solve.time * 1000);
-            document.getElementById('edit-solve-scramble').value = solve.scramble || 'No scramble recorded';
-            document.getElementById('edit-solve-notes').value = solve.notes || '';
-
-            // MUST update penalty buttons to reflect current solve state
-            updateModalPenaltyButtons();
-            updateEditModalEffectiveTime();
-
-            const vizContainer = document.getElementById('edit-scramble-viz-container');
-            if (vizContainer) {
-                const puzzleMap = {
-                    '3x3': '333', '2x2': '222', '4x4': '444', '5x5': '555', '6x6': '666', '7x7': '777',
-                    'clock': 'clock', 'megaminx': 'minx', 'pyraminx': 'pyram', 'skewb': 'skewb', 'sq1': 'sq1'
-                };
-                const pzl = puzzleMap[eventId] || '333';
-                // Safe WCA sanitize: Allow A-Z, 0-9, spaces, plus, minus, primes, slashes, parens, and commas
-                const scr = (solve.scramble || '').trim()
-                    .replace(/[\r\n\t\xA0]+/g, ' ')
-                    .replace(/[^a-zA-Z0-9' 2/+\-\(\),]/g, ' ')
-                    .replace(/\s+/g, ' ');
-
-                const isNxN = ['222', '333', '444', '555', '666', '777'].includes(pzl);
-                const tag = isNxN ? 'custom-scramble-display' : 'scramble-display';
-
-                vizContainer.innerHTML = `
-                    <${tag} id="edit-scramble-viz" 
-                        event="${pzl}"
-                        scramble="${scr.replace(/"/g, '&quot;')}"
-                        style="display: block; width: 100%; height: 100%; min-height: 80px; max-width: 240px; margin: auto; pointer-events: none; opacity: 1;">
-                    </${tag}>
-                `;
-
-                vizContainer.onclick = () => zoomScramble(scr, pzl);
-            }
-
-            updateModalPenaltyButtons();
-            document.getElementById('edit-solve-modal').style.display = 'flex';
-        };
 
         window.zoomScramble = function (scramble, puzzle) {
             const zoomOverlay = document.getElementById('scramble-zoom-overlay');
@@ -4746,10 +4776,9 @@
                 zoomOverlay.style.display = 'flex';
 
                 container.innerHTML = `
-                    <${tag} id="zoom-scramble-display" 
+                    <${tag} id="zoom-scramble-display" class="zoom-scramble-display"
                         event="${pzl}"
-                        scramble="${scr.replace(/"/g, '&quot;')}"
-                        style="display: block; width: 100%; height: 350px; max-width: 450px; filter: drop-shadow(0 0 25px rgba(16,185,129,0.25)); opacity: 1;">
+                        scramble="${scr.replace(/"/g, '&quot;')}">
                     </${tag}>
                 `;
             }
@@ -4763,9 +4792,7 @@
         };
 
 
-        window.closeEditModal = function () {
-            animateModalClose('edit-solve-modal');
-        };
+
 
         window.enableBioEdit = function () {
             const display = document.getElementById('profile-bio-display');
@@ -4956,115 +4983,7 @@
             if (eloTooltip && !e.target.closest('#elo-tooltip')) eloTooltip.style.display = 'none';
         });
 
-        function updateModalPenaltyButtons() {
-            const result = getSolveById(currentlyViewingSolveId);
-            if (!result) return;
-            const { solve } = result;
 
-            const btnPlus2 = document.getElementById('edit-btn-plus2');
-            const btnDNF = document.getElementById('edit-btn-dnf');
-
-            const hasPlus2 = typeof solve.penalty === 'number';
-            btnPlus2.textContent = hasPlus2 ? `+${solve.penalty}` : '+2';
-            btnPlus2.className = hasPlus2 ? 'modal-btn primary' : 'modal-btn secondary';
-
-            const isDNF = solve.penalty === 'DNF';
-            btnDNF.className = isDNF ? 'modal-btn primary' : 'modal-btn secondary';
-
-            updateEditModalEffectiveTime();
-        }
-
-        window.updateEditModalEffectiveTime = function () {
-            const result = getSolveById(currentlyViewingSolveId);
-            if (!result) return;
-            const { solve } = result;
-
-            const timeVal = document.getElementById('edit-solve-time').value;
-            const rawSec = parseTimeToSeconds(timeVal);
-
-            const effDisp = document.getElementById('edit-solve-effective-display');
-            if (!effDisp) return;
-
-            autoSizeInput(document.getElementById('edit-solve-time'));
-
-            if (rawSec === Infinity || solve.penalty === 'DNF') {
-                effDisp.textContent = "(DNF)";
-                effDisp.style.color = "#ef4444";
-                effDisp.style.fontFamily = "var(--font-mono)";
-            } else {
-                const p = typeof solve.penalty === 'number' ? solve.penalty : 0;
-                const total = rawSec + p;
-                const hasPenalty = p > 0;
-                effDisp.textContent = `(${hasPenalty ? '+' : ''}${formatTime(total * 1000)})`;
-                effDisp.style.color = hasPenalty ? "#f59e0b" : "var(--text-muted)";
-                effDisp.style.fontFamily = "var(--font-mono)";
-            }
-        }
-
-        // Helper for dynamic input sizing
-        function autoSizeInput(inputEl) {
-            const measure = document.getElementById('text-measure-span');
-            if (!measure || !inputEl) return;
-            // Match styles
-            measure.style.fontFamily = getComputedStyle(inputEl).fontFamily;
-            measure.style.fontSize = getComputedStyle(inputEl).fontSize;
-            measure.style.fontWeight = getComputedStyle(inputEl).fontWeight;
-            measure.textContent = inputEl.value || inputEl.placeholder || "";
-            inputEl.style.width = (measure.offsetWidth + 2) + "px";
-        }
-
-        // Time parsing moved to cubing_logic.js
-
-        window.cyclePenaltyInModal = function () {
-            const result = getSolveById(currentlyViewingSolveId);
-            if (!result) return;
-            const { solve } = result;
-            const current = typeof solve.penalty === 'number' ? solve.penalty : 0;
-            solve.penalty = current >= 16 ? null : (current === 0 ? 2 : current + 2);
-            updateModalPenaltyButtons();
-        };
-
-        window.toggleDNFInModal = function () {
-            const result = getSolveById(currentlyViewingSolveId);
-            if (!result) return;
-            const { solve } = result;
-            solve.penalty = solve.penalty === 'DNF' ? null : 'DNF';
-            updateModalPenaltyButtons();
-        };
-
-        window.resetPenaltyInModal = function () {
-            const result = getSolveById(currentlyViewingSolveId);
-            if (!result) return;
-            const { solve } = result;
-            solve.penalty = null;
-            updateModalPenaltyButtons();
-        };
-
-        window.saveSolveEdit = function () {
-            const result = getSolveById(currentlyViewingSolveId);
-            if (!result) return;
-            const { solve } = result;
-
-            const timeVal = document.getElementById('edit-solve-time').value;
-            const scrambleVal = document.getElementById('edit-solve-scramble').value;
-            const notesVal = document.getElementById('edit-solve-notes').value;
-
-            let newRawSeconds = parseTimeToSeconds(timeVal);
-
-            if (newRawSeconds !== Infinity) {
-                // Input is now treated as RAW time, so no need to subtract penalty
-                solve.time = Math.max(0, newRawSeconds);
-            } else {
-                solve.penalty = 'DNF';
-            }
-
-            solve.scramble = scrambleVal;
-            solve.notes = notesVal;
-
-            saveEvents();
-            updateStatsUI();
-            closeEditModal();
-        };
 
         // Average calculation moved to cubing_logic.js
 
@@ -5595,15 +5514,45 @@
             }
         }
 
-        // Delegated listeners for dynamic tooltip positioning
+        // Delegated listeners for dynamic tooltip positioning and sticky behavior
+        let tooltipHideTimeout = null;
+
         document.addEventListener('mouseover', (e) => {
             const card = e.target.closest('.stat-card, .pb-event-card');
-            if (card) checkTooltipFlip(card);
+            if (card) {
+                if (tooltipHideTimeout) {
+                    clearTimeout(tooltipHideTimeout);
+                    tooltipHideTimeout = null;
+                }
+                card.classList.add('active-tooltip');
+                checkTooltipFlip(card);
+            }
+        });
+
+        document.addEventListener('mouseout', (e) => {
+            const card = e.target.closest('.stat-card, .pb-event-card');
+            if (card) {
+                // If moving into the tooltip itself, don't hide
+                if (e.relatedTarget && (card.contains(e.relatedTarget))) {
+                    return;
+                }
+
+                tooltipHideTimeout = setTimeout(() => {
+                    card.classList.remove('active-tooltip');
+                    tooltipHideTimeout = null;
+                }, 50); // 0.05s delay as requested
+            }
         });
 
         document.addEventListener('touchstart', (e) => {
             const card = e.target.closest('.stat-card, .pb-event-card');
-            if (card) checkTooltipFlip(card);
+            if (card) {
+                document.querySelectorAll('.stat-card.active-tooltip, .pb-event-card.active-tooltip').forEach(c => {
+                    if (c !== card) c.classList.remove('active-tooltip');
+                });
+                card.classList.toggle('active-tooltip');
+                checkTooltipFlip(card);
+            }
         }, { passive: true });
 
         // Best single calculation moved to cubing_logic.js
@@ -5932,7 +5881,7 @@
 
                 div.innerHTML = `
                     <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; flex: 1;">
-                        <button onclick="openSolveActionModal('${solve.id}')" 
+                        <button onclick="openSolveDetailModal('${solve.id}')" 
                                 style="display: flex; align-items: center; gap: 12px; padding: 6px 12px; border-radius: 8px; border: 1px solid transparent; background: rgba(255,255,255,0.03); cursor: pointer; transition: all 0.2s; color: inherit; font-family: inherit; width: fit-content;"
                                 onmouseover="this.style.background='rgba(255,255,255,0.07)'; this.style.borderColor='var(--border-item)'" 
                                 onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.borderColor='transparent'">
@@ -5945,7 +5894,7 @@
                                 onclick="togglePenalty('${solve.id}', '+2')" title="+2 Penalty (click to cycle)">${plus2Label}</button>
                         <button class="penalty-btn dnf ${solve.penalty === 'DNF' ? 'active' : ''}" 
                                 onclick="togglePenalty('${solve.id}', 'DNF')" title="DNF Penalty">DNF</button>
-                        <button class="history-edit-btn" onclick="openEditModal('${solve.id}')" title="Open Full Editor">
+                        <button class="history-edit-btn" onclick="openSolveDetailModal('${solve.id}', true)" title="Edit Solve">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                         </button>
                         <button class="history-delete-btn" onclick="openDeleteConfirmation('${solve.id}')" title="Delete solve">
@@ -6017,7 +5966,7 @@
                         `<div class="wsp-row"><span>#${detail.solveNum}</span><span class="wsp-accent">${fmt(getEffectiveTime(s))}</span></div>` +
                         `<div class="wsp-sub">${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>` +
                         (s.scramble ? `<div class="wsp-scramble">${s.scramble}</div>` : '') +
-                        `<button class="wsp-details-btn" onclick="event.stopPropagation(); openSolveActionModal('${s.id}')">View details →</button>`;
+                        `<button class="wsp-details-btn" onclick="event.stopPropagation(); openSolveDetailModal('${s.id}')">View details →</button>`;
                 }
 
                 if (type === 'ao') {
@@ -6478,15 +6427,13 @@
                     // 2. Modals (check visibility for each)
                     const autoModals = [
                         { id: 'event-modal', close: typeof closeEventModal === 'function' ? closeEventModal : null },
-                        { id: 'solve-edit-modal', close: typeof closeEditModal === 'function' ? closeEditModal : null },
+                        { id: 'solve-detail-modal', close: typeof closeDetailModal === 'function' ? closeDetailModal : null },
                         { id: 'alg-modal', close: typeof closeAlgModal === 'function' ? closeAlgModal : null },
                         { id: 'folder-create-modal', close: typeof closeFolderCreateModal === 'function' ? closeFolderCreateModal : null },
                         { id: 'folder-edit-modal', close: typeof closeFolderEditModal === 'function' ? closeFolderEditModal : null },
                         { id: 'folder-mgmt-modal', close: typeof closeFolderMgmtModal === 'function' ? closeFolderMgmtModal : null },
-                        { id: 'confirm-modal', close: typeof closeConfirmModal === 'function' ? closeConfirmModal : null },
-                        { id: 'solve-action-modal', close: typeof closeActionModal === 'function' ? closeActionModal : null },
+                        { id: 'confirm-modal-overlay', close: typeof closeConfirmModal === 'function' ? closeConfirmModal : null },
                         { id: 'scramble-edit-modal', close: typeof closeScrambleEditModal === 'function' ? closeScrambleEditModal : null },
-                        { id: 'edit-solve-modal', close: typeof closeEditModal === 'function' ? closeEditModal : null },
                         { id: 'minigame-over-modal', close: typeof closeMinigameOverModal === 'function' ? closeMinigameOverModal : null },
                     ];
 
@@ -6938,7 +6885,7 @@
                             hideTimer = setTimeout(() => {
                                 const globalTip = getTip();
                                 if (globalTip) globalTip.classList.remove('active');
-                            }, 90);
+                            }, 50);
                         });
                     });
 
@@ -6951,7 +6898,7 @@
                         globalTip.addEventListener('mouseleave', () => {
                             hideTimer = setTimeout(() => {
                                 globalTip.classList.remove('active');
-                            }, 90);
+                            }, 50);
                         });
                         globalTip._hasListeners = true;
                     }
@@ -7226,7 +7173,7 @@
 
         let currentAlgSet = 'PLL';
         let currentAlgSort = 'name-asc';
-        let currentAlgFilter = 'none';
+        let currentAlgFilters = [];
         let algorithmToEditId = null;
         let algorithmToDeleteId = null;
 
@@ -7242,10 +7189,19 @@
 
             let filtered = algorithmList.filter(a => {
                 const eventMatch = a.event === currentEvent;
-                const setMatch = currentAlgSet === 'All' || a.category === currentAlgSet;
-                const filterMatch = currentAlgFilter === 'none' ||
-                    (currentAlgFilter === 'favorites' && a.favorite) ||
-                    (currentAlgFilter === 'custom' && a.custom);
+                let setMatch = currentAlgSet === 'All' || a.category === currentAlgSet;
+                
+                let filterMatch = true;
+                if (currentAlgFilters.length > 0) {
+                    filterMatch = currentAlgFilters.every(f => {
+                        if (f === 'favorites') return a.favorite;
+                        if (f === 'custom') return a.custom;
+                        if (f === 'folder') return a.folderVariants && (currentFolderId in a.folderVariants);
+                        if (f === 'recent') return (Date.now() - a.lastUsed) < 24 * 60 * 60 * 1000;
+                        return true;
+                    });
+                }
+
                 return eventMatch && setMatch && filterMatch;
             });
 
@@ -7267,6 +7223,12 @@
                 const card = document.createElement('div');
                 card.className = 'alg-card';
 
+                // PICK THE CORRECT VARIANT
+                let displayAlg = item.alg;
+                if (item.folderVariants && item.folderVariants[currentFolderId]) {
+                    displayAlg = item.folderVariants[currentFolderId];
+                }
+
                 // Determine visualizer
                 const isNXN = ['3x3', '2x2', '4x4', '5x5', '6x6', '7x7'].includes(item.event);
                 const size = isNXN ? parseInt(item.event[0]) : 3;
@@ -7279,14 +7241,14 @@
                 let visualizerHtml = '';
                 if (isNXN) {
                     if (vType === '3d') {
-                        visualizerHtml = `<nxn-interactive-3d size="${size}" scramble="${item.alg}" style="width: 100%; height: 100%;"></nxn-interactive-3d>`;
+                        visualizerHtml = `<nxn-interactive-3d size="${size}" scramble="${displayAlg}" style="width: 100%; height: 100%;"></nxn-interactive-3d>`;
                     } else if (vType === 'net') {
-                        visualizerHtml = `<custom-scramble-display class="active-viz" event="${wcaEvent}" scramble="${item.alg}" style="width: 100%; height: 100%;"></custom-scramble-display>`;
+                        visualizerHtml = `<custom-scramble-display class="active-viz" event="${wcaEvent}" scramble="${displayAlg}" style="width: 100%; height: 100%;"></custom-scramble-display>`;
                     } else {
-                        visualizerHtml = `<nxn-top-view size="${size}" focus-face="U" scramble="${item.alg}" style="width: 100%; height: 100%;"></nxn-top-view>`;
+                        visualizerHtml = `<nxn-top-view size="${size}" focus-face="U" scramble="${displayAlg}" style="width: 100%; height: 100%;"></nxn-top-view>`;
                     }
                 } else {
-                    visualizerHtml = `<custom-scramble-display class="active-viz" event="${wcaEvent}" scramble="${item.alg}" style="width: 100%; height: 100%;"></custom-scramble-display>`;
+                    visualizerHtml = `<custom-scramble-display class="active-viz" event="${wcaEvent}" scramble="${displayAlg}" style="width: 100%; height: 100%;"></custom-scramble-display>`;
                 }
 
                 card.innerHTML = `
@@ -7303,7 +7265,7 @@
                     <div class="alg-viz-container">
                         ${visualizerHtml}
                     </div>
-                    <div class="alg-sequence">${item.alg}</div>
+                    <div class="alg-sequence">${displayAlg}</div>
                     <div class="alg-actions">
                         <button class="alg-action-btn" onclick="openEditAlgModal('${item.id}', event)">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
@@ -7350,9 +7312,36 @@
         };
 
         window.setAlgFilter = function (filter) {
-            currentAlgFilter = filter;
+            if (filter === 'none') {
+                currentAlgFilters = [];
+                closeAllLearningDropdowns();
+            } else {
+                const idx = currentAlgFilters.indexOf(filter);
+                if (idx > -1) {
+                    currentAlgFilters.splice(idx, 1);
+                } else {
+                    currentAlgFilters.push(filter);
+                }
+            }
+            
+            // Update UI
+            document.querySelectorAll('.filter-opt').forEach(btn => {
+                const f = btn.dataset.filter;
+                if (f === 'none') {
+                    if (currentAlgFilters.length === 0) btn.style.color = 'var(--accent-primary)';
+                    else btn.style.color = '';
+                } else {
+                    if (currentAlgFilters.includes(f)) {
+                        btn.style.color = 'var(--accent-primary)';
+                        btn.style.fontWeight = '700';
+                    } else {
+                        btn.style.color = '';
+                        btn.style.fontWeight = '';
+                    }
+                }
+            });
+
             renderAlgorithmGrid();
-            closeAllLearningDropdowns();
         };
 
         window.renderCustomSets = function () {
@@ -7379,7 +7368,7 @@
 
             if (customAlgSets.length > 0) {
                 addSubtitle(dropdownContainer, 'Custom Sets', document.getElementById('add-set-divider'));
-                addSubtitle(modalContainer, 'Custom Sets', modalContainer.lastElementChild); // Insert before 'Other'
+                addSubtitle(modalContainer, 'Custom Sets', null); // Append to the end
             }
 
             // Add custom sets
@@ -7411,7 +7400,7 @@
                 modalBtn.className = 'sort-option-btn dynamic-set';
                 modalBtn.textContent = set;
                 modalBtn.onclick = () => setAlgCategory(set);
-                modalContainer.insertBefore(modalBtn, modalContainer.lastElementChild);
+                modalContainer.appendChild(modalBtn);
             });
 
             const addSetBtn = document.getElementById('add-set-btn');
@@ -7666,6 +7655,16 @@
             document.getElementById('alg-sequence-input').value = '';
             setAlgCategory('PLL');
             setAlgPreviewMode('top');
+            
+            // Pre-assign default folder
+            const folders = eventFolders[currentEvent] || [];
+            const initialFolders = {};
+            if (folders.length > 0) {
+                const defFolder = folders.find(f => f.id === 'default' || f.id.includes('default')) || folders[0];
+                initialFolders[defFolder.id] = '';
+            }
+            
+            populateAlgFolderAssignments(initialFolders);
             document.getElementById('alg-modal').style.display = 'flex';
         };
 
@@ -7685,7 +7684,118 @@
             document.getElementById('alg-sequence-input').value = alg.alg;
             setAlgCategory(alg.category || 'User');
             setAlgPreviewMode(alg.visualizerType || 'top');
+            
+            populateAlgFolderAssignments(alg.folderVariants || {}); // NEW
             document.getElementById('alg-modal').style.display = 'flex';
+        };
+
+        let activeAlgFolderVariants = {}; // Temp store for modal
+
+        window.toggleAlgFolderDropdown = function(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('alg-folder-selector-dropdown');
+            if (!dropdown) return;
+            const isVisible = dropdown.style.display === 'block';
+            
+            if (!isVisible) {
+                const folders = eventFolders[currentEvent] || [];
+                const unassigned = folders.filter(f => !(f.id in activeAlgFolderVariants));
+                
+                if (unassigned.length === 0) {
+                    dropdown.innerHTML = '<div style="padding: 12px; color: var(--text-muted); font-size: 12px; text-align: center;">All folders already assigned</div>';
+                } else {
+                    dropdown.innerHTML = unassigned.map(f => `
+                        <div class="custom-option" onclick="addAlgFolderVariant('${f.id}', '${f.name.replace(/'/g, "\\'")}')" 
+                            style="padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; color: #fff; transition: background 0.2s;">
+                            ${f.name}
+                        </div>
+                    `).join('');
+                    
+                    dropdown.querySelectorAll('.custom-option').forEach(opt => {
+                        opt.onmouseover = () => opt.style.background = 'rgba(255,255,255,0.05)';
+                        opt.onmouseout = () => opt.style.background = 'transparent';
+                    });
+                }
+                dropdown.style.display = 'block';
+                document.getElementById('add-folder-variant-btn').style.borderColor = 'var(--accent-primary)';
+            } else {
+                dropdown.style.display = 'none';
+                document.getElementById('add-folder-variant-btn').style.borderColor = 'var(--border-item)';
+            }
+
+            const closeDrop = () => {
+                const dropdown = document.getElementById('alg-folder-selector-dropdown');
+                if (dropdown) dropdown.style.display = 'none';
+                const btn = document.getElementById('add-folder-variant-btn');
+                if (btn) btn.style.borderColor = 'var(--border-item)';
+            };
+            document.addEventListener('click', closeDrop, { once: true });
+        };
+
+        window.addAlgFolderVariant = function(id, name) {
+            activeAlgFolderVariants[id] = '';
+            renderAlgFolderVariants();
+        };
+
+        window.removeAlgFolderVariant = function(id) {
+            delete activeAlgFolderVariants[id];
+            renderAlgFolderVariants();
+        };
+
+        window.populateAlgFolderAssignments = function(existingVariants = {}) {
+            activeAlgFolderVariants = { ...existingVariants };
+            renderAlgFolderVariants();
+        };
+
+        window.syncMainAlgFromVariants = function() {
+            let mainSeq = '';
+            for (const fId in activeAlgFolderVariants) {
+                if (activeAlgFolderVariants[fId].trim()) {
+                    mainSeq = activeAlgFolderVariants[fId].trim();
+                    break;
+                }
+            }
+            const mainInput = document.getElementById('alg-sequence-input');
+            if (mainInput) {
+                mainInput.value = mainSeq;
+                updateAlgPreview();
+            }
+        };
+
+        window.renderAlgFolderVariants = function() {
+            const container = document.getElementById('alg-folder-variants-rows');
+            if (!container) return;
+            container.innerHTML = '';
+
+            Object.keys(activeAlgFolderVariants).forEach(fId => {
+                const folderList = eventFolders[currentEvent] || [];
+                const folder = folderList.find(f => f.id === fId) || { name: fId };
+                
+                const row = document.createElement('div');
+                row.className = 'alg-folder-variant-row';
+                row.style.cssText = 'display: flex; flex-direction: column; gap: 8px; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-item); border-radius: 10px; animation: fadeIn 0.3s ease;';
+                
+                row.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 11px; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em;">${folder.name}</span>
+                        <button onclick="removeAlgFolderVariant('${fId}')" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px; display: flex; align-items: center; opacity: 0.7; transition: opacity 0.2s;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+                    </div>
+                    <input type="text" class="alg-folder-variant-input" data-folder-id="${fId}" 
+                        placeholder="Algorithm sequence..." value="${activeAlgFolderVariants[fId] || ''}"
+                        oninput="activeAlgFolderVariants['${fId}'] = this.value; syncMainAlgFromVariants();"
+                        style="width: 100%; height: 36px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-item); border-radius: 8px; color: var(--text-secondary); padding: 0 12px; font-family: var(--font-mono); font-size: 13px; outline: none; transition: border-color 0.2s;">
+                `;
+                
+                const input = row.querySelector('input');
+                if (input) {
+                    input.onfocus = () => input.style.borderColor = 'var(--accent-primary)';
+                    input.onblur = () => input.style.borderColor = 'var(--border-item)';
+                }
+                
+                container.appendChild(row);
+            });
         };
 
         window.closeAlgModal = function () {
@@ -7695,27 +7805,39 @@
         window.saveAlgorithm = function () {
             const name = document.getElementById('alg-name-input').value.trim();
             const cat = selectedAlgCategory;
-            const seqInput = document.getElementById('alg-sequence-input');
-            const errorMsg = document.getElementById('alg-error-msg');
-            const seq = seqInput.value.trim();
+            let mainSeq = document.getElementById('alg-sequence-input').value.trim();
+            
+            // If main field is empty (hidden), double check folder variants
+            if (!mainSeq) {
+                for (const fId in activeAlgFolderVariants) {
+                    if (activeAlgFolderVariants[fId].trim()) {
+                        mainSeq = activeAlgFolderVariants[fId].trim();
+                        break;
+                    }
+                }
+            }
 
-            if (!name || !seq) return;
+            if (!name || !mainSeq) return;
 
             // VALIDATION using Alg class (preserving original notation)
             try {
                 if (window.Alg) {
-                    window.Alg.fromString(seq);
+                    window.Alg.fromString(mainSeq);
                 }
             } catch (err) {
                 console.error("Invalid alg sequence:", err);
-                seqInput.classList.add('invalid-alg-input');
+                const seqInput = document.getElementById('alg-sequence-input');
+                if (seqInput) seqInput.classList.add('invalid-alg-input');
                 if (errorMsg) {
                     errorMsg.textContent = "Invalid algorithm sequence: " + err.message;
                     errorMsg.style.display = 'block';
                 }
                 return;
             }
-            let canonicalAlg = seq;
+            let canonicalAlg = mainSeq;
+
+            // Collect Folder Variants
+            const folderVariants = { ...activeAlgFolderVariants };
 
             if (algorithmToEditId) {
                 const alg = algorithmList.find(a => a.id === algorithmToEditId);
@@ -7724,6 +7846,7 @@
                     alg.category = cat;
                     alg.alg = canonicalAlg;
                     alg.visualizerType = currentAlgPreviewMode;
+                    alg.folderVariants = folderVariants;
                 }
             } else {
                 algorithmList.push({
@@ -7735,7 +7858,8 @@
                     favorite: false,
                     lastUsed: Date.now(),
                     event: currentEvent,
-                    custom: true
+                    custom: true,
+                    folderVariants: folderVariants
                 });
             }
 
@@ -7848,7 +7972,10 @@
         <div class="modal-content" style="max-width: 450px; width: 90%;">
             <div class="modal-header"
                 style="position: relative; display: flex; justify-content: space-between; align-items: center; padding: 20px 24px 15px;">
-                <h3 style="margin:0;">Folders — <span id="folder-modal-event">3x3</span></h3>
+                <div style="display: flex; flex-direction: column;">
+                    <h3 id="folder-mgmt-title" style="margin:0;">Folders</h3>
+                    <p style="color: var(--text-secondary); font-size: 14px; margin-top: 4px;">Manage your sessions and sub-folders</p>
+                </div>
                 <button class="close-btn" onclick="closeFolderMgmtModal()" aria-label="Close">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
@@ -7936,15 +8063,16 @@
 
     <!-- Shared Confirmation Modal -->
     <div id="confirm-modal" class="modal-overlay" onclick="closeConfirmModal(event)">
-        <div class="modal-content" style="max-width: 350px; width: 85%; font-family: var(--font-main);"
+        <div class="modal-content" style="max-width: 350px; width: 85%; font-family: var(--font-main); overflow: visible;"
             onclick="event.stopPropagation()">
-            <div class="modal-body" style="padding: 28px 25px 20px; text-align: center;">
+            <div class="modal-body" style="padding: 28px 25px 20px; text-align: center; overflow: visible;">
                 <div id="confirm-modal-icon"
                     style="width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
                     <!-- icon injected by JS -->
                 </div>
                 <h3 id="confirm-modal-title" style="margin-bottom: 8px; color: #fff;"></h3>
                 <p id="confirm-modal-body" style="color: var(--text-secondary); font-size: 14px; line-height: 1.5;"></p>
+                <div id="confirm-modal-extra" style="margin-top: 20px; text-align: left;"></div>
             </div>
             <div class="modal-footer" style="padding: 0 25px 30px; display: flex; gap: 10px; border-top: none;">
                 <button id="confirm-modal-ok" class="modal-btn"

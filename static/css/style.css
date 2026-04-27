@@ -2013,6 +2013,73 @@ input, button, textarea, select {
     letter-spacing: 0.5px;
 }
 
+
+/* Scramble Zoom Responsive Styles */
+.zoom-viz-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.15);
+    min-height: 0; /* Remove fixed min-height */
+}
+
+.zoom-scramble-display {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 60vh; /* Cap height to ensure it fits with header/footer */
+    max-width: 450px;
+    aspect-ratio: 1.2 / 1; /* Approximate aspect ratio of a flattened cube */
+    filter: drop-shadow(0 0 25px rgba(16, 185, 129, 0.25));
+    opacity: 1;
+}
+
+@media (max-width: 600px) {
+    .zoom-viz-body {
+        padding: 10px;
+        max-height: 55vh;
+    }
+    .zoom-scramble-display {
+        max-height: 50vh;
+        max-width: 100%;
+    }
+    
+    #scramble-zoom-overlay .modal-content {
+        margin-bottom: 0;
+        max-height: 95vh;
+        width: 96%;
+    }
+}
+
+/* Landscape Mobile Fixes */
+@media (orientation: landscape) and (max-height: 500px) {
+    #scramble-zoom-overlay .modal-content {
+        max-height: 98vh;
+        width: 85%;
+    }
+    #scramble-zoom-overlay .modal-header {
+        padding: 8px 16px;
+    }
+    #scramble-zoom-overlay .modal-header p {
+        display: none; /* Hide subtitle to save vertical space */
+    }
+    #scramble-zoom-overlay .zoom-viz-body {
+        padding: 5px;
+        max-height: 45vh;
+    }
+    #scramble-zoom-overlay .zoom-scramble-display {
+        max-height: 40vh;
+    }
+    #scramble-zoom-overlay .modal-footer {
+        padding: 8px 16px;
+    }
+    #scramble-zoom-overlay .modal-btn {
+        padding: 6px 0;
+        font-size: 12px;
+    }
+}
+
 .mobile-header {
     display: none;
 }
@@ -2358,6 +2425,8 @@ input, button, textarea, select {
     margin-top: 10px;
     left: 50%;
     transform: translateX(-50%) translateY(-5px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    pointer-events: none;
     background-color: var(--bg-top-menu) !important;
     color: var(--text-primary);
     padding: 12px 16px;
@@ -2395,9 +2464,13 @@ input, button, textarea, select {
 }
 
 @media (min-width: 769px) {
-    .stat-card:hover .stat-tooltip {
+    .stat-card.active-tooltip .stat-tooltip,
+    .stat-card:hover .stat-tooltip,
+    .pb-event-card.active-tooltip .stat-tooltip,
+    .pb-event-card:hover .stat-tooltip {
         visibility: visible;
         opacity: 1;
+        pointer-events: all;
         transform: translateX(-50%) translateY(0);
     }
 }
@@ -2420,6 +2493,21 @@ input, button, textarea, select {
 .stat-tooltip.flipped::after {
     bottom: auto;
     top: 100%;
+}
+
+.stat-tooltip::before {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: 0;
+    right: 0;
+    height: 15px;
+    background: transparent;
+}
+
+.stat-tooltip.flipped::before {
+    top: auto;
+    bottom: -15px;
 }
 
 .stat-tooltip-row {
@@ -4610,9 +4698,7 @@ input:checked+.slider:before {
     gap: 12px;
     transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
     position: relative;
-    overflow: hidden;
     backdrop-filter: blur(10px);
-    height: 100%;
     min-height: 300px;
 }
 
@@ -4687,7 +4773,6 @@ input:checked+.slider:before {
     border-radius: 8px;
     line-height: 1.5;
     word-break: break-word;
-    min-height: 42px;
 }
 
 .alg-actions {

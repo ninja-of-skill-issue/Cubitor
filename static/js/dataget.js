@@ -22,7 +22,7 @@ let cubingGoal = "";
 let userPronouns = "Prefer not to say";
 let pbAnimationLength = 1.5; // Default shorter as requested
 let globalLastSolveId = 0;
-let timerAccuracy = 2; // Default to 2 decimals
+let timerAccuracy = 3; // Default to 3 decimals to support 0.001s solves
 let confirmSolveDelete = true;
 let useInspection = false;
 let saveMinigameSolves = false;
@@ -81,11 +81,6 @@ wcaEvents.forEach(evt => {
             folderList.push(std);
         }
     });
-    
-    // 3x3 specific extension
-    if (evt.id === '3x3') {
-        if (!folderList.find(s => s.id === 'sess_mbld')) folderList.push({ id: 'sess_mbld', name: 'Multi-Blind' });
-    }
 });
 
 // Immediately persist these default folders if they were just added or updated
@@ -147,7 +142,7 @@ function generateMockSolves() {
                 id: ++globalLastSolveId,
                 eventId: eventId,
                 folderId: fId,
-                time: Math.max(0.5, solveTime),
+                time: Math.max(0.001, solveTime),
                 date: new Date(now - Math.random() * thirtyDaysMs).toISOString(),
                 scramble: mockScramble,
                 penalty: penalty
