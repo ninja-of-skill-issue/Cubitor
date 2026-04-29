@@ -70,7 +70,52 @@ class CubeNxN {
 }
 
 // --- Puzzles Logics (Pyraminx, Skewb, Megaminx) ---
-class PyraminxLogic { constructor() { this.reset(); } reset() { this.faces = { U: Array(9).fill(4), L: Array(9).fill(2), R: Array(9).fill(3), B: Array(9).fill(1) }; } cycle(sets) { const n = sets.length, last = sets[n - 1]; const tmp = last[1].map(idx => this.faces[last[0]][idx]); for (let i = n - 1; i > 0; i--) { const dest = sets[i], src = sets[i - 1]; src[1].forEach((idx, k) => this.faces[dest[0]][dest[1][k]] = this.faces[src[0]][idx]); } tmp.forEach((v, k) => this.faces[sets[0][0]][sets[0][1][k]] = v); } move(m) { let base = m[0], isTip = base >= 'a' && base <= 'z', axis = base.toUpperCase(); let count = m.includes("'") ? 2 : 1; for (let i=0; i<count; i++) { switch (axis) { case 'U': this.cycle([['U',[0]],['R',[0]],['L',[0]]]); if (!isTip) this.cycle([['U',[1,2,3]],['R',[1,2,3]],['L',[1,2,3]]]); break; case 'R': this.cycle([['U',[8]],['B',[8]],['R',[4]]]); if (!isTip) this.cycle([['U',[7,6,5]],['B',[7,6,5]],['R',[3,2,8]]]); break; case 'L': this.cycle([['U',[4]],['L',[8]],['B',[4]]]); if (!isTip) this.cycle([['U',[5,3,2]],['L',[7,6,5]],['B',[3,2,8]]]); break; case 'B': this.cycle([['L',[4]],['R',[8]],['B',[0]]]); if (!isTip) this.cycle([['L',[3,2,8]],['R',[7,6,5]],['B',[1,2,3]]]); break; } } } applyScramble(str) { this.reset(); if (str) str.split(/\s+/).filter(x => x).forEach(m => this.move(m)); } }
+class PyraminxLogic { 
+    constructor() { this.reset(); } 
+    reset() { this.faces = { L: Array(9).fill(3), R: Array(9).fill(5), F: Array(9).fill(4), B: Array(9).fill(1) }; } 
+    cycle(sets) { const n = sets.length, last = sets[n - 1]; const tmp = last[1].map(idx => this.faces[last[0]][idx]); for (let i = n - 1; i > 0; i--) { const dest = sets[i], src = sets[i - 1]; src[1].forEach((idx, k) => this.faces[dest[0]][dest[1][k]] = this.faces[src[0]][idx]); } tmp.forEach((v, k) => this.faces[sets[0][0]][sets[0][1][k]] = v); } 
+    move(m) { 
+        let base = m[0], isTip = base >= 'a' && base <= 'z', axis = base.toUpperCase(); 
+        let count = m.includes("'") ? 2 : 1; 
+        for (let i=0; i<count; i++) { 
+            switch (axis) { 
+                case 'U': // P_TOP: L[4], R[0], F[0]
+                    this.cycle([['F',[0]],['R',[0]],['L',[4]]]);
+                    if (!isTip) {
+                        this.cycle([['F',[2]],['R',[2]],['L',[5]]]);
+                        this.cycle([['F',[1]],['R',[3]],['L',[1]]]);
+                        this.cycle([['L',[6]],['F',[3]],['R',[1]]]);
+                    }
+                    break;
+                case 'R': // P_MR: R[8], F[8], B[4]
+                    this.cycle([['F',[8]],['B',[4]],['R',[8]]]);
+                    if (!isTip) {
+                        this.cycle([['F',[7]],['B',[5]],['R',[7]]]);
+                        this.cycle([['B',[6]],['R',[3]],['F',[6]]]);
+                        this.cycle([['F',[3]],['B',[1]],['R',[6]]]);
+                    }
+                    break;
+                case 'L': // P_ML: L[8], F[4], B[0]
+                    this.cycle([['B',[0]],['F',[4]],['L',[8]]]);
+                    if (!isTip) {
+                        this.cycle([['B',[2]],['F',[5]],['L',[7]]]);
+                        this.cycle([['B',[3]],['F',[1]],['L',[3]]]);
+                        this.cycle([['F',[6]],['L',[6]],['B',[1]]]);
+                    }
+                    break;
+                case 'B': // P_BACK: L[0], R[4], B[8]
+                    this.cycle([['R',[4]],['B',[8]],['L',[0]]]);
+                    if (!isTip) {
+                        this.cycle([['R',[5]],['B',[7]],['L',[2]]]);
+                        this.cycle([['R',[1]],['B',[6]],['L',[3]]]);
+                        this.cycle([['L',[1]],['R',[6]],['B',[3]]]);
+                    }
+                    break;
+            } 
+        } 
+    } 
+    applyScramble(str) { this.reset(); if (str) str.split(/\s+/).filter(x => x).forEach(m => this.move(m)); } 
+}
 class SkewbLogic { constructor() { this.reset(); } reset() { this.faces = { U: Array(5).fill(0), D: Array(5).fill(1), L: Array(5).fill(2), R: Array(5).fill(3), F: Array(5).fill(4), B: Array(5).fill(5) }; } cycle(sets) { const n = sets.length, last = sets[n - 1]; const tmp = last[1].map(idx => this.faces[last[0]][idx]); for (let i = n - 1; i > 0; i--) { const dest = sets[i], src = sets[i - 1]; src[1].forEach((idx, k) => this.faces[dest[0]][dest[1][k]] = this.faces[src[0]][idx]); } tmp.forEach((v, k) => this.faces[sets[0][0]][sets[0][1][k]] = v); } move(m) { let axis = m[0].toUpperCase(), count = m.includes("'") ? 2 : 1; for (let i=0; i<count; i++) { switch (axis) { case 'R': this.cycle([['U',[0]],['R',[0]],['F',[0]]]); this.cycle([['U',[2,4,3]],['R',[1,4,3]],['F',[2,1,4]]]); break; case 'L': this.cycle([['U',[0]],['F',[0]],['L',[0]]]); this.cycle([['U',[3,4,1]],['F',[3,4,1]],['L',[2,4,3]]]); break; case 'U': this.cycle([['U',[0]],['L',[0]],['B',[0]]]); this.cycle([['U',[1,4,2]],['B',[2,4,3]],['L',[1,4,2]]]); break; case 'B': this.cycle([['U',[0]],['B',[0]],['R',[0]]]); this.cycle([['U',[2,4,1]],['B',[1,4,2]],['R',[2,4,1]]]); break; } } } applyScramble(str) { this.reset(); if (str) str.split(/\s+/).filter(x => x).forEach(m => this.move(m)); } }
 class MegaminxLogic { constructor() { this.reset(); } reset() { this.faces = {}; for (let i=0; i<12; i++) this.faces[i] = Array(11).fill(i); } cycle(sets) { const n = sets.length, last = sets[n-1]; const tmp = last[1].map(idx => this.faces[last[0]][idx]); for (let i=n-1; i>0; i--) { const dest = sets[i], src = sets[i-1]; src[1].forEach((idx, k) => this.faces[dest[0]][dest[1][k]] = this.faces[src[0]][idx]); } tmp.forEach((v, k) => this.faces[sets[0][0]][sets[0][1][k]] = v); } move(m) { if (m === "U") { this.rotateFace(0, true); this.cycle([[1, [1,2,6]], [2, [1,2,6]], [3, [1,2,6]], [4, [1,2,6]], [5, [1,2,6]]]); } else if (m === "U'") { for(let i=0; i<4; i++) this.move("U"); } else if (m.startsWith("R")) { const cw = m.includes("++"); const f_map = cw ? [0,1, 4,6,8,10,2, 5,7,9,11,3] : [0,1, 6,10,2,4,8, 11,3,5,7,9]; this.applyFacePermutation(f_map); } else if (m.startsWith("D")) { const cw = m.includes("++"); const f_map = cw ? [0, 5,1,2,3,4, 10,6,7,8,9, 11] : [0, 2,3,4,5,1, 7,8,9,10,6, 11]; this.applyFacePermutation(f_map); } } applyFacePermutation(map) { let nextFaces = {}; for(let i=0; i<12; i++) nextFaces[map[i]] = [...this.faces[i]]; for(let i=0; i<12; i++) this.faces[i] = nextFaces[i]; } rotateFace(f, cw) { const s = this.faces[f]; const n = [...s]; for(let i=0; i<5; i++) { const t = cw ? (i%5)+1 : ((i+4)%5)+1; n[t] = s[i+1]; n[t+5] = s[i+6]; } this.faces[f] = n; } applyScramble(str) { this.reset(); if (str) str.split(/\s+/).filter(x => x).forEach(m => this.move(m)); } }
 
@@ -86,7 +131,7 @@ class CustomScrambleDisplay extends HTMLElement {
             this.currentEvent = newVal;
             const sizeMap = { '222': 2, '333': 3, '444': 4, '555': 5, '666': 6, '777': 7 };
             if (sizeMap[newVal]) this.cube = new CubeNxN(sizeMap[newVal]);
-            else if (newVal === 'pyram') this.cube = new PyraminxLogic();
+            else if (newVal === 'pyram' || newVal === 'pyraminx') this.cube = new PyraminxLogic();
             else if (newVal === 'skewb') this.cube = new SkewbLogic();
             else if (newVal === 'minx') this.cube = new MegaminxLogic();
             this.setScramble(this.getAttribute('scramble') || "");
@@ -120,7 +165,7 @@ class CustomScrambleDisplay extends HTMLElement {
             this.currentEvent = eventId;
             const sizeMap = { '222': 2, '333': 3, '444': 4, '555': 5, '666': 6, '777': 7 };
             if (sizeMap[eventId]) this.cube = new CubeNxN(sizeMap[eventId]);
-            else if (eventId === 'pyram') this.cube = new PyraminxLogic();
+            else if (eventId === 'pyram' || eventId === 'pyraminx') this.cube = new PyraminxLogic();
             else if (eventId === 'skewb') this.cube = new SkewbLogic();
             else if (eventId === 'minx') this.cube = new MegaminxLogic();
         }
@@ -147,20 +192,55 @@ class CustomScrambleDisplay extends HTMLElement {
             svg { width: 100%; height: 100%; max-width: 100%; max-height: 100%; overflow: visible; shape-rendering: geometricPrecision; }
         </style><div class="svg-container">`;
 
-        if (this.currentEvent === 'pyram') {
+        if (this.currentEvent === 'pyram' || this.currentEvent === 'pyraminx') {
             html += `<svg viewBox="0 0 320 280">`;
-            const drawTri = (f, ox, oy, s, flipped = false) => {
-                const h = s * Math.sqrt(3)/2, sc = 0.88;
-                const m = [[0,0,1], [-0.5,1,1],[0,1,0],[0.5,1,1], [-1,2,1],[-0.5,2,0],[0,2,1],[0.5,2,0],[1,2,1]];
-                m.forEach((t, i) => {
-                    const px = ox + t[0]*s, py = oy + t[1]* (flipped ? -h : h), u = flipped ? !t[2] : t[2];
-                    let pts = u ? [[px, py], [px-s/2, py+h], [px+s/2, py+h]] : [[px, py+h], [px-s/2, py], [px+s/2, py]];
-                    const cx = pts.reduce((sum, p) => sum + p[0], 0) / 3, cy = pts.reduce((sum, p) => sum + p[1], 0) / 3;
-                    const sp = pts.map(p => [cx + (p[0]-cx)*sc, cy + (p[1]-cy)*sc]);
-                    html += `<path d="${this.getRoundedPath(sp, 0.25)}" fill="${colors[this.cube.faces[f][i]]}" stroke="rgba(0,0,0,0.15)" stroke-width="0.5"/>`;
+            const drawFace = (f, p1, p2, p3) => {
+                const faceSc = 0.88; // Gap between faces (increased)
+                const cf = [(p1[0]+p2[0]+p3[0])/3, (p1[1]+p2[1]+p3[1])/3];
+                // Scale the main face vertices towards centroid
+                const sp1 = [cf[0]+(p1[0]-cf[0])*faceSc, cf[1]+(p1[1]-cf[1])*faceSc];
+                const sp2 = [cf[0]+(p2[0]-cf[0])*faceSc, cf[1]+(p2[1]-cf[1])*faceSc];
+                const sp3 = [cf[0]+(p3[0]-cf[0])*faceSc, cf[1]+(p3[1]-cf[1])*faceSc];
+
+                const getPt = (w1, w2, w3) => [
+                    w1 * sp1[0] + w2 * sp2[0] + w3 * sp3[0],
+                    w1 * sp1[1] + w2 * sp2[1] + w3 * sp3[1]
+                ];
+
+                const sc = 0.96; // Gap between stickers (decreased)
+                const tris = [
+                    [[1,0,0], [2/3,1/3,0], [2/3,0,1/3]], // 0
+                    [[2/3,1/3,0], [1/3,2/3,0], [1/3,1/3,1/3]], // 1
+                    [[2/3,1/3,0], [2/3,0,1/3], [1/3,1/3,1/3]], // 2 (Inv)
+                    [[2/3,0,1/3], [1/3,1/3,1/3], [1/3,0,2/3]], // 3
+                    [[1/3,2/3,0], [0,1,0], [0,2/3,1/3]], // 4
+                    [[1/3,2/3,0], [1/3,1/3,1/3], [0,2/3,1/3]], // 5 (Inv)
+                    [[1/3,1/3,1/3], [0,2/3,1/3], [0,1/3,2/3]], // 6
+                    [[1/3,1/3,1/3], [1/3,0,2/3], [0,1/3,2/3]], // 7 (Inv)
+                    [[1/3,0,2/3], [0,1/3,2/3], [0,0,1]] // 8
+                ];
+
+                tris.forEach((pts, i) => {
+                    const poly = pts.map(w => getPt(w[0], w[1], w[2]));
+                    const cx = (poly[0][0] + poly[1][0] + poly[2][0]) / 3;
+                    const cy = (poly[0][1] + poly[1][1] + poly[2][1]) / 3;
+                    const scaled = poly.map(p => [cx + (p[0]-cx)*sc, cy + (p[1]-cy)*sc]);
+                    html += `<path d="${this.getRoundedPath(scaled, 0.2)}" fill="${colors[this.cube.faces[f][i]]}" />`;
                 });
             };
-            drawTri('U', 160, 15, 46); drawTri('L', 70, 155, 46); drawTri('R', 250, 155, 46); drawTri('B', 160, 235, 46, true);
+
+            const side = 120, h = side * Math.sqrt(3)/2, ox = 160, oy = 30;
+            const P_TOP = [ox, oy];
+            const P_L = [ox - side, oy];
+            const P_R = [ox + side, oy];
+            const P_ML = [ox - side/2, oy + h];
+            const P_MR = [ox + side/2, oy + h];
+            const P_BOT = [ox, oy + 2*h];
+
+            drawFace('L', P_L, P_TOP, P_ML);
+            drawFace('R', P_TOP, P_R, P_MR);
+            drawFace('F', P_TOP, P_ML, P_MR);
+            drawFace('B', P_ML, P_MR, P_BOT);
             html += `</svg>`;
         } else if (this.currentEvent === 'skewb') {
             html += `<svg viewBox="0 0 320 260">`;

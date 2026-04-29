@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pyraminx Visualizer Comparison</title>
+    <script type="module" src="https://cdn.cubing.net/v0/js/scramble-display"></script>
+    <script type="module" src="../static/js/cubing logic/custom_scramble_display.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #121212;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+        }
+        .comparison-container {
+            display: flex;
+            gap: 40px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .viz-card {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            width: 350px;
+        }
+        h2 { margin-bottom: 15px; font-weight: 300; color: #aaa; }
+        .viz-container {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: #000;
+        }
+        input {
+            width: 80%;
+            max-width: 600px;
+            padding: 12px 20px;
+            font-size: 18px;
+            background: #222;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 8px;
+            margin-top: 20px;
+            outline: none;
+        }
+        input:focus { border-color: #4caf50; }
+        .label { font-size: 14px; margin-top: 10px; color: #666; }
+    </style>
+</head>
+<body>
+
+    <h1>Pyraminx Comparison</h1>
+    <p>Type a scramble below to see how both visualizers respond.</p>
+    
+    <input type="text" id="scramble-input" placeholder="e.g. R U L' B R' U' L" value="R">
+
+    <div class="comparison-container">
+        <!-- Online Version -->
+        <div class="viz-card">
+            <h2>Online (cubing.js)</h2>
+            <div class="viz-container">
+                <scramble-display id="online-viz" event="pyram" scramble="R"></scramble-display>
+            </div>
+            <div class="label">event="pyram"</div>
+        </div>
+
+        <!-- My Version -->
+        <div class="viz-card" style="border: 2px solid #4caf50;">
+            <h2>My Version (Custom)</h2>
+            <div class="viz-container">
+                <custom-scramble-display id="custom-viz" event="pyraminx" scramble="R"></custom-scramble-display>
+            </div>
+            <div class="label">event="pyraminx"</div>
+        </div>
+    </div>
+
+    <script>
+        const input = document.getElementById('scramble-input');
+        const onlineViz = document.getElementById('online-viz');
+        const customViz = document.getElementById('custom-viz');
+
+        input.addEventListener('input', (e) => {
+            const val = e.target.value.trim();
+            onlineViz.setAttribute('scramble', val);
+            customViz.setAttribute('scramble', val);
+        });
+    </script>
+</body>
+</html>

@@ -29,6 +29,12 @@ let saveMinigameSolves = false;
 let lastActiveTab = "timer-tab"; // Default in memory
 var currentFolderId = localStorage.getItem('currentFolderId') || 'default';
 var eventFolders = {}; // Map of eventId -> array of {id, name}
+window.minigameElos = {
+    'classic': 1000,
+    'timeattack': 1000,
+    'scramble': 1000,
+    'elimination': 1000
+};
 
 // MIGRATION: Check for older session keys
 if (!localStorage.getItem('eventFolders') && localStorage.getItem('eventSessions')) {

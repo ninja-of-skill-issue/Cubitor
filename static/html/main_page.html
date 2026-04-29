@@ -174,10 +174,12 @@
     <script src="../js/cubing logic/nxn_top_view.js"></script>
     <script src="../js/cubing logic/nxn_isometric_view.js"></script>
     <script src="../js/cubing logic/nxn_interactive_3d.js"></script>
+    <script src="../js/cubing logic/pyraminx_interactive_3d.js"></script>
     <style>
         nxn-top-view,
         nxn-isometric-view,
         nxn-interactive-3d,
+        pyraminx-interactive-3d,
         .alg-viz-container,
         #alg-preview-3d-viz,
         [id*="alg-preview-"] {
@@ -1915,7 +1917,7 @@
                     </div>
                     <div id="profile-elo" onmouseenter="showEloTooltip()" onmouseleave="hideEloTooltip()"
                         onclick="toggleEloTooltip(event)">
-                        Elo
+                        Elo: <span id="profile-elo-value">1000</span>
                     </div>
                 </div>
             </div>
@@ -2503,6 +2505,8 @@
                             style="width: 100%; height: 100%; display: flex;"></nxn-top-view>
                         <nxn-interactive-3d id="alg-preview-3d-viz" size="3" scramble=""
                             style="width: 100%; height: 100%; display: none;"></nxn-interactive-3d>
+                        <pyraminx-interactive-3d id="alg-preview-pyram-viz" scramble=""
+                            style="width: 100%; height: 100%; display: none;"></pyraminx-interactive-3d>
                         <custom-scramble-display id="alg-preview-net-viz" event="333" scramble=""
                             style="width: 100%; height: 100%; display: none;"></custom-scramble-display>
                     </div>
@@ -2599,6 +2603,7 @@
         let currentTime = 0;
         let profile_pic = window.profile_pic || '<img src="../testing elements/image.png" alt="Profile Picture">';
         let isCelebratingPB = false;
+        window.elo = 1000;
 
         // --- Scramble Management State ---
         let scrambleHistory = [];
@@ -4524,7 +4529,8 @@
                     .replace(/\s+/g, ' ');
 
                 const isNxN = ['222', '333', '444', '555', '666', '777'].includes(pzl);
-                const tag = isNxN ? 'custom-scramble-display' : 'scramble-display';
+                let tag = isNxN ? 'custom-scramble-display' : 'scramble-display';
+                if (currentEvent === 'pyraminx') tag = 'custom-scramble-display'; // Use custom for Pyraminx net 2D
 
                 vizContainer.innerHTML = `<${tag} id="detail-scramble-viz" event="${pzl}" scramble="${scr.replace(/"/g, '&quot;')}" style="display: block; width: 100%; height: 100%; pointer-events: none; opacity: 1;"></${tag}>`;
                 vizContainer.onclick = () => zoomScramble(scr, pzl);
@@ -4771,7 +4777,8 @@
                 const scr = scramble || '';
 
                 const isNxN = ['222', '333', '444', '555', '666', '777'].includes(pzl);
-                const tag = isNxN ? 'custom-scramble-display' : 'scramble-display';
+                let tag = isNxN ? 'custom-scramble-display' : 'scramble-display';
+                if (currentEvent === 'pyraminx') tag = 'custom-scramble-display';
 
                 zoomOverlay.style.display = 'flex';
 
@@ -4901,18 +4908,25 @@
         window.renderEloTooltip = function () {
             const grid = document.getElementById('elo-grid');
             if (!grid) return;
+            
+            const games = [
+                { id: 'classic', name: 'Classic' },
+                { id: 'timeattack', name: 'Time Attack' },
+                { id: 'scramble', name: 'Scramble' },
+                { id: 'elimination', name: 'Elimination' }
+            ];
 
             let html = `
                 <div class="elo-tooltip-header">
-                    <span>All Event Ratings</span>
+                    <span>Minigame Ratings</span>
                 </div>
                 <div class="elo-divider"></div>
 
                 <div class="elo-grid" style="margin-top: 8px;">
-                    ${wcaEvents.map(event => `
+                    ${games.map(game => `
                         <div class="elo-row">
-                            <span class="elo-event-name">${event.name}</span>
-                            <span class="elo-value">${event.elo || 1000}</span>
+                            <span class="elo-event-name">${game.name}</span>
+                            <span class="elo-value">${window.minigameElos[game.id] || 1000}</span>
                         </div>
                     `).join('')}
                 </div>
@@ -6698,8 +6712,8 @@
                     toggleBtn.style.cssText = 'display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.05); padding: 2px; border-radius: 6px; cursor: pointer; user-select: none; border: 1px solid rgba(255,255,255,0.05); transition: all 0.2s;';
                     const currentMode = localStorage.getItem('scramble_view_mode') || '2D';
                     toggleBtn.innerHTML = `
-                        <div style="padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; color: ${currentMode === '3D' ? '#fff' : 'rgba(255,255,255,0.4)'}; background: ${currentMode === '3D' ? 'var(--accent-primary)' : 'transparent'};">3D</div>
-                        <div style="padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; color: ${currentMode === '2D' ? '#fff' : 'rgba(255,255,255,0.4)'}; background: ${currentMode === '2D' ? 'var(--accent-primary)' : 'transparent'};">Net</div>
+                        <div style="padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; color: ${currentMode === '3D' ? '#fff' : 'rgba(255,255,255,0.4)'}; background: ${currentMode === '3D' ? 'var(--accent-primary)' : 'transparent'}; transition: all 0.2s;">3D</div>
+                        <div style="padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; color: ${currentMode === '2D' ? '#fff' : 'rgba(255,255,255,0.4)'}; background: ${currentMode === '2D' ? 'var(--accent-primary)' : 'transparent'}; transition: all 0.2s;">Net</div>
                     `;
                     toggleBtn.onclick = (e) => {
                         e.stopPropagation();
@@ -6743,8 +6757,10 @@
                     let tag;
                     if (viewMode === '3D') {
                         tag = isNxN ? 'nxn-interactive-3d' : 'scramble-display';
+                        if (currentEvent === 'pyraminx') tag = 'pyraminx-interactive-3d';
                     } else {
                         tag = isNxN ? 'custom-scramble-display' : 'scramble-display';
+                        if (currentEvent === 'pyraminx') tag = 'custom-scramble-display';
                     }
 
                     content.style.padding = '10px';
@@ -7151,12 +7167,15 @@
 
         // --- Learning Tab Logic ---
         let algorithmList = JSON.parse(localStorage.getItem('algorithmList')) || [
-            { id: 'alg_1', name: 'T-Perm', alg: "R U R' U' R' F R2 U' R' U' R U R' F'", category: 'PLL', favorite: false, lastUsed: Date.now(), event: '3x3', custom: false },
-            { id: 'alg_2', name: 'Y-Perm', alg: "F R U' R' U' R U R' F' R U R' U' R' F R F'", category: 'PLL', favorite: false, lastUsed: Date.now(), event: '3x3', custom: false },
-            { id: 'alg_3', name: 'Sune', alg: "R U R' U R U2 R'", category: 'OLL', favorite: false, lastUsed: Date.now(), event: '3x3', custom: false },
-            { id: 'alg_4', name: 'Anti-Sune', alg: "R U2 R' U' R U' R'", category: 'OLL', favorite: false, lastUsed: Date.now(), event: '3x3', custom: false },
-            { id: 'alg_5', name: 'Jb-Perm', alg: "R U R' F' R U R' U' R' F R2 U' R'", category: 'PLL', favorite: false, lastUsed: Date.now(), event: '3x3', custom: false },
-            { id: 'alg_6', name: 'Ua-Perm', alg: "M2 U M U2 M' U M2", category: 'PLL', favorite: false, lastUsed: Date.now(), event: '3x3', custom: false }
+            { id: 'alg_1', name: 'T-Perm', alg: "R U R' U' R' F R2 U' R' U' R U R' F'", category: 'PLL', favorite: false, lastUsed: Date.now(), event: '3x3', custom: false, folderVariants: { 'default': "R U R' U' R' F R2 U' R' U' R U R' F'" } },
+            { id: 'alg_2', name: 'Y-Perm', alg: "F R U' R' U' R U R' F' R U R' U' R' F R F'", category: 'PLL', favorite: false, lastUsed: Date.now(), event: '3x3', custom: false, folderVariants: { 'default': "F R U' R' U' R U R' F' R U R' U' R' F R F'" } },
+            { id: 'alg_3', name: 'Sune', alg: "R U R' U R U2 R'", category: 'OLL', favorite: false, lastUsed: Date.now(), event: '3x3', custom: false, folderVariants: { 'default': "R U R' U R U2 R'" } },
+            { id: 'alg_4', name: 'Anti-Sune', alg: "R U2 R' U' R U' R'", category: 'OLL', favorite: false, lastUsed: Date.now(), event: '3x3', custom: false, folderVariants: { 'default': "R U2 R' U' R U' R'" } },
+            { id: 'alg_5', name: 'Jb-Perm', alg: "R U R' F' R U R' U' R' F R2 U' R'", category: 'PLL', favorite: false, lastUsed: Date.now(), event: '3x3', custom: false, folderVariants: { 'default': "R U R' F' R U R' U' R' F R2 U' R'" } },
+            { id: 'alg_6', name: 'Ua-Perm', alg: "M2 U M U2 M' U M2", category: 'PLL', favorite: false, lastUsed: Date.now(), event: '3x3', custom: false, folderVariants: { 'default': "M2 U M U2 M' U M2" } },
+            { id: 'alg_7', name: 'H-Perm', alg: "M2 U M2 U2 M2 U M2", category: 'PLL', favorite: true, lastUsed: Date.now(), event: '3x3', custom: true, folderVariants: { 'default': "M2 U M2 U2 M2 U M2", 'sess_oh': "(R U R' U') (R' F R2 U' R' U' R U R' F')" } },
+            { id: 'alg_8', name: 'Na-Perm', alg: "R U R' U R U R' F' R U R' U' R' F R2 U' R' U2 R U' R'", category: 'PLL', favorite: false, lastUsed: Date.now(), event: '3x3', custom: true, folderVariants: { 'sess_bld': "R U R' U R U R' F' R U R' U' R' F R2 U' R' U2 R U' R'" } },
+            { id: 'alg_9', name: 'F-Perm', alg: "R' U' F' R U R' U' R' F R2 U' R' U' R U R' U R", category: 'PLL', favorite: false, lastUsed: Date.now(), event: '3x3', custom: true, folderVariants: { 'default': "R' U' F' R U R' U' R' F R2 U' R' U' R U R' U R" } }
         ];
 
         // MIGRATION: Ensure all algorithms have an event property and custom property
@@ -7169,7 +7188,7 @@
             }
         });
 
-        let customAlgSets = JSON.parse(localStorage.getItem('customAlgSets')) || [];
+        let customAlgSets = JSON.parse(localStorage.getItem('customAlgSets')) || ['ZBLL'];
 
         let currentAlgSet = 'PLL';
         let currentAlgSort = 'name-asc';
@@ -7246,6 +7265,12 @@
                         visualizerHtml = `<custom-scramble-display class="active-viz" event="${wcaEvent}" scramble="${displayAlg}" style="width: 100%; height: 100%;"></custom-scramble-display>`;
                     } else {
                         visualizerHtml = `<nxn-top-view size="${size}" focus-face="U" scramble="${displayAlg}" style="width: 100%; height: 100%;"></nxn-top-view>`;
+                    }
+                } else if (wcaEvent === 'pyram') {
+                    if (vType === '3d') {
+                        visualizerHtml = `<pyraminx-interactive-3d scramble="${displayAlg}" style="width: 100%; height: 100%;"></pyraminx-interactive-3d>`;
+                    } else {
+                        visualizerHtml = `<custom-scramble-display class="active-viz" event="${wcaEvent}" scramble="${displayAlg}" style="width: 100%; height: 100%;"></custom-scramble-display>`;
                     }
                 } else {
                     visualizerHtml = `<custom-scramble-display class="active-viz" event="${wcaEvent}" scramble="${displayAlg}" style="width: 100%; height: 100%;"></custom-scramble-display>`;
@@ -7579,8 +7604,9 @@
                         topViz.style.display = 'none';
                     }
                 }
+                const pyramViz = document.getElementById('alg-preview-pyram-viz');
                 if (isoViz) {
-                    if (isNXN) {
+                    if (isNXN && currentEvent !== 'pyraminx') {
                         isoViz.style.display = currentAlgPreviewMode === '3d' ? 'flex' : 'none';
                         isoViz.setAttribute('size', size);
                         isoViz.setAttribute('scramble', val);
@@ -7588,12 +7614,19 @@
                         isoViz.style.display = 'none';
                     }
                 }
+                if (pyramViz) {
+                    if (eventToShow === 'pyraminx') {
+                        pyramViz.style.display = currentAlgPreviewMode === '3d' ? 'flex' : 'none';
+                        pyramViz.setAttribute('scramble', val);
+                    } else {
+                        pyramViz.style.display = 'none';
+                    }
+                }
                 if (netViz) {
-                    if (currentAlgPreviewMode === 'net') netViz.classList.add('active-viz');
-                    else netViz.classList.remove('active-viz');
+                    if (currentAlgPreviewMode === 'net') netViz.style.display = 'flex';
+                    else netViz.style.display = 'none';
                     netViz.setAttribute('event', mappedId);
                     netViz.setAttribute('scramble', val);
-                    netViz.setAttribute('visualization', 'net');
                 }
                 if (viz3d) {
                     viz3d.setAttribute('event', mappedId);
