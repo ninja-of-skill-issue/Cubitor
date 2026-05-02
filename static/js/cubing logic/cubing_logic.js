@@ -54,8 +54,8 @@ function parseTimeToSeconds(timeStr) {
  */
 function getEffectiveTime(solve) {
     if (!solve) return 0;
-    if (solve.penalty === 'DNF') return Infinity;
-    if (typeof solve.penalty === 'number') return solve.time + solve.penalty;
+    if (solve.penalty === -1 || solve.penalty === 'DNF') return Infinity;
+    if (typeof solve.penalty === 'number' && solve.penalty > 0) return solve.time + solve.penalty;
     return solve.time;
 }
 
@@ -68,13 +68,13 @@ function getSolveById(id) {
     
     // Check minigame solves first if one is active
     if (typeof currentMinigame !== 'undefined' && currentMinigame && typeof timeAttackSolves !== 'undefined') {
-        const mgSolve = timeAttackSolves.find(s => s.id === id);
+        const mgSolve = timeAttackSolves.find(s => s.id == id);
         if (mgSolve) return { solve: mgSolve, eventId: 'minigame' };
     }
 
     for (const eId in allEvents) {
         if (!Array.isArray(allEvents[eId])) continue;
-        const solve = allEvents[eId].find(s => s.id === id);
+        const solve = allEvents[eId].find(s => s.id == id);
         if (solve) return { solve, eventId: eId };
     }
     return null;
@@ -244,8 +244,9 @@ function breakdownRows(solves) {
     if (!solves) return '';
     return solves.map(sv => {
         const t = sv.time === Infinity ? 'DNF' : formatTime(sv.time * 1000);
+        const penaltyStr = (sv.penalty === 2 || sv.penalty === '+2') ? ' (+2)' : (sv.penalty === -1 || sv.penalty === 'DNF' ? ' (DNF)' : '');
         return `<div class="wsp-row ${sv.dropped ? 'wsp-dropped' : ''}">
-            <span>#${sv.solveNum}</span><span>${t}${sv.penalty === '+2' ? ' (+2)' : ''}</span></div>`;
+            <span>#${sv.solveNum}</span><span>${t}${penaltyStr}</span></div>`;
     }).join('');
 }
 

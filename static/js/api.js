@@ -1,11 +1,21 @@
-const API_URL = "http://localhost:8080";
+const API_URL = "http://localhost:8080/api";
 
 // Endpoint configurations
-const LOGIN_URL = "/api/auth/login";
-const REGISTER_URL = "/api/auth/register";
-const GOOGLE_REGISTER_URL = "/api/auth/google-register";
-const GET_USER_DATA_URL = "/api/user_info";
-const GET_USER_SOLVES_URL = "/api/solves_info";
+const LOGIN_URL = "/auth/login";
+const REGISTER_URL = "/auth/register";
+const GOOGLE_REGISTER_URL = "/auth/google-register";
+const GET_USER_DATA_URL = "/user_info";
+const GET_USER_SOLVES_URL = "/solves_info";
+const ADD_SOLVE_URL = "/add_solve";
+const EDIT_SOLVES_URL = "/edit_solves";
+const DELETE_SOLVES_URL = "/delete_solves";
+const UPDATE_USER_DATA_URL = "/update_user";
+const DELETE_USER_URL = "/delete_user";
+const GET_FRIENDS_URL = "/get_friends";
+const ALL_USERS_URL = "/all_users";
+const ADD_FRIEND_URL = "/add_friend";
+const REMOVE_FRIEND_URL = "/remove_friend";
+const PENDING_REQUESTS_URL = "/pending_friend_requests";
 
 /**
  * Perform an asynchronous POST request
@@ -62,7 +72,15 @@ async function postDataWithToken(endpoint, data, token = null) {
         throw new Error(errorMsg || `POST request failed with status ${response.status}`);
     }
 
-    return await response.json();
+    if (response.status === 204) return {};
+    const text = await response.text();
+    try {
+        return text ? JSON.parse(text) : {};
+    } catch (e) {
+        console.error(`[API] JSON Parse Error from ${endpoint}:`, e.message);
+        console.error("[API] Malformed Response Text:", text);
+        throw new Error("Server returned invalid data structure (JSON Parse Error)");
+    }
 }
 
 
@@ -103,6 +121,14 @@ function setAuthToken(token, days = 7) {
     const expires = "expires=" + date.toUTCString();
     document.cookie = "auth_token=" + token + ";" + expires + ";path=/;SameSite=Strict";
     console.log("[API] setAuthToken: Token saved to cookie.");
+}
+
+/**
+ * Remove the auth token cookie
+ */
+function clearAuthToken() {
+    document.cookie = "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Strict";
+    console.log("[API] clearAuthToken: Token removed.");
 }
 
 /**

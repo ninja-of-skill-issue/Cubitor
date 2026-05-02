@@ -111,7 +111,7 @@
             try {
                 const result = await postData(GOOGLE_REGISTER_URL, googleData);
                 console.log("Google Registration successful:", result);
-                
+
                 // Save token if returned
                 const token = result.token || result.accessToken;
                 if (token) {
