@@ -9004,14 +9004,12 @@
             closeConfirmModal();
         };
 
-        // Apply to all draggable chart areas
-        document.querySelectorAll('.draggable-scroll-area').forEach(container => {
-            initDraggableScroll(container);
-        });
+        window.communityUsers = [];
+        window.currentCommType = 'all';
+        window.currentCommRole = 'all';
 
-    </script>
-    <script src="../js/community.js"></script>
-    <script type="text/plain">
+        window.toggleCustomDropdown = function (id) {
+            const dropdown = document.getElementById(id);
             if (!dropdown) return;
 
             // Close other dropdowns
@@ -9040,7 +9038,7 @@
             if (triggerLabel) triggerLabel.textContent = label;
 
             // Update hidden input
-
+            const hiddenInput = document.getElementById('community-sort'); // Specific for community sort for now
             if (hiddenInput) {
                 hiddenInput.value = value;
                 handleCommunityFilter();

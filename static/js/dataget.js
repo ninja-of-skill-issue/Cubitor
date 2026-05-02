@@ -14,7 +14,7 @@ let minigameHistory = [];
 
 class User {
     constructor(userData = {}) {
-        this.id = userData.id || null;
+        this.id = userData.id || userData._id || userData.uid || null;
         this.username = userData.username || '';
         this.email = userData.email || '';
         this.password = userData.password || null;
