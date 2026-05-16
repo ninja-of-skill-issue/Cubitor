@@ -18,8 +18,8 @@
         (function () {
             const token = getAuthToken();
             if (!token) {
-                console.log("No auth token found. Redirecting to login...");
-                window.location.href = "login.html";
+                console.log("No auth token found. Redirecting to about...");
+                window.location.href = "about.html";
                 return;
             }
 
@@ -40,10 +40,10 @@
                             const mapping = {
                                 'profile-name': window.currentUser.username || 'Cuber',
                                 'profile-email': window.currentUser.email || '',
-                                'profile-bio-display': window.currentUser.description,
-                                'fav-event-display': window.currentUser.fav_event,
-                                'goal-display': window.currentUser.goal,
-                                'pronouns-display': window.currentUser.pronouns
+                                'profile-bio-display': (window.userBio !== "" && window.userBio !== undefined) ? window.userBio : (window.currentUser?.description || ''),
+                                'fav-event-display': (window.favoriteEvent !== "" && window.favoriteEvent !== undefined) ? window.favoriteEvent : (window.currentUser?.fav_event || ''),
+                                'goal-display': (window.cubingGoal !== "" && window.cubingGoal !== undefined) ? window.cubingGoal : (window.currentUser?.goal || ''),
+                                'pronouns-display': window.currentUser?.pronouns || ''
                             };
 
                             for (const [id, value] of Object.entries(mapping)) {
@@ -672,6 +672,15 @@
             </svg>
             <span>Settings</span>
         </div>
+        <div class="menu-item" id="nav-about" onclick="window.location.href='about.html'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span>About</span>
+        </div>
         <div class="menu-item" id="nav-logout" onclick="logout()" style="margin-top: auto; color: #ef4444;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round">
@@ -750,6 +759,15 @@
             <div class="tab-title" id="current-tab-title">Timer</div>
             <div style="display: flex; align-items: center; gap: 12px;" id="top-bar-right-controls">
                 <div class="timer-controls-group" id="top-bar-timer-controls">
+                    <button class="top-bar-btn" onclick="window.location.href='about.html'" title="About Cubitor">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <span class="top-bar-btn-text" style="margin-left: 6px;">About</span>
+                    </button>
+
                     <button class="top-bar-btn" onclick="undoLastSolve()" title="Undo Last Solve">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2.5">
@@ -2109,6 +2127,8 @@
                 <button class="sub-tab-btn" onclick="switchSettingsPanel('timer', this)">Timer</button>
                 <button class="sub-tab-btn" onclick="switchSettingsPanel('appearance', this)">Appearance</button>
                 <button class="sub-tab-btn" onclick="switchSettingsPanel('account', this)">Account</button>
+                
+                <button id="global-save-settings-btn" class="btn-action-primary" onclick="saveSettingsToAPI()" style="margin-left: auto; padding: 8px 16px; font-size: 13px; max-width: max-content; margin-bottom: 4px;">Save Settings</button>
             </div>
 
             <div id="settings-overall-panel" class="sub-panel active">
@@ -2326,15 +2346,27 @@
                     closeConfirmModal();
                 };
 
-                window.confirmResetSettings = function () {
-                    const settingsKeys = [
-                        'widgetConfig', 'minigameWidgetConfig', 'pbAnimationLength',
-                        'timerAccuracy', 'confirmSolveDelete', 'useInspection',
-                        'userTheme', 'userFont', 'userBio', 'favoriteEvent',
-                        'cubingGoal', 'userPronouns', 'currentEvent', 'lastActiveTab',
-                        'widgetCount', 'widgetConfigVersion', 'saveMinigameSolves'
-                    ];
-                    settingsKeys.forEach(key => localStorage.removeItem(key));
+                window.confirmResetSettings = async function () {
+                    // Clean up localStorage
+                    ['currentEvent', 'lastActiveTab', 'widgetConfigVersion'].forEach(key => localStorage.removeItem(key));
+                    
+                    // Reset backend settings (preserving profile info)
+                    if (window.appSettings) {
+                        const preserved = {
+                            id: window.appSettings.id,
+                            bio: window.appSettings.bio,
+                            cubingGoal: window.appSettings.cubingGoal,
+                            favoriteEvent: window.appSettings.favoriteEvent
+                        };
+                        
+                        window.appSettings = new SettingsSet({});
+                        Object.assign(window.appSettings, preserved);
+                        
+                        if (typeof saveSettingsToAPI === 'function') {
+                            await saveSettingsToAPI();
+                        }
+                    }
+                    
                     window.location.reload();
                 };
 
@@ -2398,9 +2430,9 @@
                         'acc-username': u.username || '',
                         'acc-avatar': u.avatar || '',
                         'acc-email': u.email || '',
-                        'acc-bio': u.description || '',
-                        'acc-fav-event': u.fav_event || '',
-                        'acc-goal': u.goal || '',
+                        'acc-bio': window.userBio || u.description || '',
+                        'acc-fav-event': window.favoriteEvent || u.fav_event || '',
+                        'acc-goal': window.cubingGoal || u.goal || '',
                         'acc-pronouns-val': u.pronouns || 'Prefer not to say'
                     };
 
@@ -2487,19 +2519,24 @@
                     const goalVal = (document.getElementById('acc-goal')?.value || '').trim();
                     const proVal = document.getElementById('acc-pronouns-val')?.textContent || 'Prefer not to say';
 
-                    const descObj = { bio: bioVal, fav_event: favVal, goal: goalVal, pronouns: proVal };
+                    // Update settings mapping and trigger save
+                    window.userBio = bioVal;
+                    window.favoriteEvent = favVal;
+                    window.cubingGoal = goalVal;
+
+                    const descObj = { 
+                        pronouns: proVal
+                    };
 
                     const payload = {
                         id: u.id,
                         username: (document.getElementById('acc-username')?.value || u.username || '').trim(),
                         email: u.email || '',
-                        password: u.password || null,
-                        role: u.role || 'USER',
                         elo: u.elo || 0,
-                        last_online: u.last_online || '',
-                        description: JSON.stringify(descObj),
-                        account_creation_date: u.account_creation_date || '',
-                        avatar: (document.getElementById('acc-avatar')?.value || u.avatar || '').trim()
+                        lastOnline: u.last_online || u.lastOnline || '',
+                        creationDate: u.account_creation_date || u.creationDate || '',
+                        profilePic: (document.getElementById('acc-avatar')?.value || u.avatar || u.profilePic || '').trim(),
+                        roleID: (u.role === 'ADMIN' ? 1 : 0) // Basic mapping to roleID Integer
                     };
 
                     console.log("[API] Updating user data with payload:", payload);
@@ -2508,7 +2545,7 @@
                         const token = getAuthToken();
                         if (!token) throw new Error("No auth token");
 
-                        const result = await postDataWithToken(UPDATE_USER_DATA_URL, payload, token);
+                        const result = await postDataWithToken('/update_user', payload, token);
                         console.log("[API] Account updated:", result);
 
                         // Update local currentUser and UI
@@ -2518,21 +2555,23 @@
                         const nameEl = document.getElementById('profile-name');
                         if (nameEl) nameEl.textContent = payload.name || payload.username || 'Cuber';
 
-                        let descObj = { bio: '', fav_event: '', goal: '', pronouns: 'Prefer not to say' };
+                        let descObj = { pronouns: 'Prefer not to say' };
                         try {
                             descObj = JSON.parse(payload.description);
                         } catch (e) {
-                            descObj.bio = payload.description;
+                            // description only holds pronouns now
                         }
 
+                        window.currentUser.pronouns = descObj.pronouns || 'Prefer not to say';
+
                         const bioEl = document.getElementById('profile-bio-display');
-                        if (bioEl) bioEl.textContent = descObj.bio;
+                        if (bioEl) bioEl.textContent = window.userBio || '';
 
                         const favEl = document.getElementById('fav-event-display');
-                        if (favEl) favEl.textContent = descObj.fav_event;
+                        if (favEl) favEl.textContent = window.favoriteEvent || '';
 
                         const goalEl = document.getElementById('goal-display');
-                        if (goalEl) goalEl.textContent = descObj.goal;
+                        if (goalEl) goalEl.textContent = window.cubingGoal || '';
 
                         const proEl = document.getElementById('pronouns-display');
                         if (proEl) {
@@ -2713,10 +2752,7 @@
                             </div>
                         </div>
 
-                        <button class="top-bar-btn" id="save-account-btn" onclick="saveAccountSettings()"
-                            style="width: 100%; justify-content: center; background: var(--accent-primary); color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; height: 44px; font-size: 15px;">
-                            Save Changes
-                        </button>
+
                         <p id="account-save-status"
                             style="margin-top: 10px; font-size: 12px; text-align: center; display: none;"></p>
                     </div>
@@ -4742,6 +4778,12 @@
             if (!isInitializing) {
                 if (typeof lastActiveTab !== 'undefined') lastActiveTab = tabId;
                 localStorage.setItem('lastActiveTab', tabId);
+                
+                // Sync to backend if available
+                if (typeof appSettings !== 'undefined' && typeof saveSettingsToAPI === 'function') {
+                    appSettings.lastActiveTab = tabId;
+                    saveSettingsToAPI();
+                }
             }
 
             // Trigger layout updates
@@ -4814,6 +4856,11 @@
         }
 
         function setTheme(themeName, element) {
+            if (element) {
+                window.theme = themeName;
+                if (typeof saveSettingsToAPI === 'function') saveSettingsToAPI();
+            }
+
             // Remove previous theme classes
             document.body.classList.remove('theme-blue', 'theme-white', 'theme-green', 'theme-brown', 'theme-purple');
 
@@ -4838,11 +4885,15 @@
             if (typeof generateScramble === 'function') generateScramble();
             // Refresh the charts with new colors
             if (typeof updateChart === 'function') updateChart();
-            // Save via dataget.js (single source of truth)
-            saveToLocalStorage();
+
         }
 
         function setFont(fontName, element) {
+            if (element) {
+                window.font = fontName;
+                if (typeof saveSettingsToAPI === 'function') saveSettingsToAPI();
+            }
+
             // Remove previous font classes
             document.body.classList.remove('font-elegant', 'font-tech', 'font-mono', 'font-consolas');
 
@@ -4860,8 +4911,7 @@
                 if (target) target.classList.add('active');
             }
 
-            // Save via dataget.js (single source of truth)
-            saveToLocalStorage();
+
         }
 
         // loadTheme() and loadFont() are defined in dataget.js
@@ -6795,11 +6845,10 @@
 
             // 2. Assign Chronological Indices (1..N) within this context
             // Note: solveHistory is usually in chronological order (pushed).
-            let sortedHistory = baseFiltered.map((solve, index) => ({
-                ...solve,
-                displayIndex: index + 1,
-                originalIndex: index // Keep for delete button if needed
-            }));
+            baseFiltered.forEach((solve, index) => {
+                solve.displayIndex = index + 1;
+            });
+            let sortedHistory = [...baseFiltered];
 
             // 3. Apply Search + Advanced + View Filters
             // Search
@@ -6937,7 +6986,8 @@
             });
 
             // --- WIDGET HISTORY (Unfiltered by search/advanced, only current folder/event) ---
-            const widgetHistory = (solveHistory || []).filter(s => s.folderId === currentFolderId).slice(-50).reverse();
+            const folderSolves = (solveHistory || []).filter(s => s.folderId === currentFolderId);
+            const widgetHistory = folderSolves.slice(-50).reverse();
             widgetHistory.forEach((solve, idx) => {
                 const effTime = getEffectiveTime(solve);
                 const hasPlus2 = typeof solve.penalty === 'number' && solve.penalty > 0;
@@ -6952,7 +7002,7 @@
                         <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
                             <button onclick="openSolveDetailModal('${solve.id}')" 
                                     style="display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-radius: 6px; border: 1px solid transparent; background: rgba(255,255,255,0.03); cursor: pointer; transition: all 0.2s; color: inherit; font-family: inherit;">
-                                <span class="history-num" style="opacity: 0.6; font-size: 11px;">#${(solveHistory || []).indexOf(solve) + 1}.</span> 
+                                <span class="history-num" style="opacity: 0.6; font-size: 11px;">#${solve.displayIndex || folderSolves.indexOf(solve) + 1}.</span> 
                                 <span class="history-time ${isDNF ? 'dnf-text' : (hasPlus2 ? 'plus2-text' : '')}" style="font-weight: 600; font-size: 13px;">${timeDisp}</span>
                             </button>
                         </div>
@@ -7795,15 +7845,15 @@
                     const toggleBtn = document.createElement('div');
                     toggleBtn.className = 'widget-view-toggle';
                     toggleBtn.style.cssText = 'display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.05); padding: 2px; border-radius: 6px; cursor: pointer; user-select: none; border: 1px solid rgba(255,255,255,0.05); transition: all 0.2s;';
-                    const currentMode = '2D'; // Default to 2D in-memory
+                    const currentMode = localStorage.getItem('scramble_view_mode') || '2D';
                     toggleBtn.innerHTML = `
                         <div style="padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; color: ${currentMode === '3D' ? '#fff' : 'rgba(255,255,255,0.4)'}; background: ${currentMode === '3D' ? 'var(--accent-primary)' : 'transparent'}; transition: all 0.2s;">3D</div>
                         <div style="padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; color: ${currentMode === '2D' ? '#fff' : 'rgba(255,255,255,0.4)'}; background: ${currentMode === '2D' ? 'var(--accent-primary)' : 'transparent'}; transition: all 0.2s;">Net</div>
                     `;
                     toggleBtn.onclick = (e) => {
                         e.stopPropagation();
-                        const newMode = '2D'; // No longer persisting toggle state locally
-                        // localStorage.setItem('scramble_view_mode', newMode);
+                        const newMode = currentMode === '3D' ? '2D' : '3D';
+                        localStorage.setItem('scramble_view_mode', newMode);
                         renderWidgets();
                     };
                     header.prepend(toggleBtn);
@@ -7836,7 +7886,7 @@
                     const mappedEventId = wcaFormatMap[eventFallback] || '333';
 
                     const isNxN = ['222', '333', '444', '555', '666', '777'].includes(mappedEventId);
-                    const viewMode = '2D';
+                    const viewMode = localStorage.getItem('scramble_view_mode') || '2D';
 
                     // Prioritize my custom 3D/Net views for standard cubes
                     let tag;
@@ -8064,7 +8114,7 @@
 
         async function initApp() {
             console.log("[App] initApp starting...");
-            if (typeof loadFromLocalStorage === 'function') loadFromLocalStorage();
+            if (typeof loadFromLocalStorage === 'function') await loadFromLocalStorage();
             if (typeof updateFolderLabels === 'function') updateFolderLabels();
             if (typeof syncSettingsUI === 'function') syncSettingsUI();
 

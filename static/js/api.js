@@ -16,6 +16,8 @@ const ALL_USERS_URL = "/all_users";
 const ADD_FRIEND_URL = "/add_friend";
 const REMOVE_FRIEND_URL = "/remove_friend";
 const PENDING_REQUESTS_URL = "/pending_friend_requests";
+const GET_SETSET_URL = "/get_setset";
+const SET_SETSET_URL = "/set_setset";
 
 /**
  * Perform an asynchronous POST request

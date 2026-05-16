@@ -11,9 +11,60 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@100;300;400;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: #ffffff;
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: #a1a1aa;
+            font-weight: 600;
+            transition: color 0.2s;
+            font-size: 15px;
+        }
+
+        .nav-links a:hover {
+            color: #ffffff;
+        }
+
+        .nav-links .btn-login {
+            background-color: #ffffff;
+            color: #0f172a;
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+    </style>
 </head>
 
 <body class="login-screen">
+    <nav class="navbar" style="position: absolute; top: 0; left: 0; right: 0; background: transparent;">
+        <a href="about.html" class="logo">Cubing</a>
+        <div class="nav-links">
+            <a href="about.html">About</a>
+            <a href="login.html">Log in</a>
+            <a href="register.html" class="btn-login">Sign up</a>
+        </div>
+    </nav>
     <div class="login-card">
         <div class="login-logo">Cubing</div>
         <p class="login-subtitle">Join the community of speedcubers.</p>

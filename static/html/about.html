@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About | Cubing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: #0f172a;
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: #475569;
+            font-weight: 600;
+            transition: color 0.2s;
+            font-size: 15px;
+        }
+
+        .nav-links a:hover {
+            color: #0f172a;
+        }
+
+        .nav-links .btn-login {
+            background-color: #0f172a;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+
+        .nav-links a.active {
+            color: #2563eb;
+        }
+
+        /* About Page Text Section */
+        .info-section {
+            padding: 100px 20px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .info-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .info-content h2 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            color: #0f172a;
+        }
+
+        .info-content p {
+            font-size: 18px;
+            color: #475569;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .info-content a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.2);
+            transition: border-bottom 0.2s;
+        }
+
+        .info-content a:hover {
+            border-bottom: 1px solid #2563eb;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 80px 20px 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero-title {
+            font-size: 64px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin: 0 0 24px 0;
+            letter-spacing: -2px;
+        }
+
+        .hero-title span {
+            color: #2563eb;
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            color: #475569;
+            line-height: 1.6;
+            margin: 0 auto 40px auto;
+            max-width: 700px;
+            font-weight: 400;
+        }
+
+        .hero-actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 60px;
+        }
+
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+            padding: 16px 32px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background-color: #ffffff;
+            color: #0f172a;
+            padding: 16px 32px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s, transform 0.1s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f1f5f9;
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.98);
+        }
+
+        /* Legacy preview styles removed to prevent conflicts */
+
+        /* Features Section */
+        .features-section {
+            background-color: #ffffff;
+            padding: 100px 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .section-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 70px;
+        }
+
+        .section-header h2 {
+            font-size: 42px;
+            font-weight: 800;
+            margin: 0 0 16px 0;
+            color: #0f172a;
+            letter-spacing: -1px;
+        }
+
+        .section-header p {
+            font-size: 20px;
+            color: #64748b;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 32px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.05);
+            border-color: #cbd5e1;
+        }
+
+        .feature-icon {
+            width: 52px;
+            height: 52px;
+            background-color: #eff6ff;
+            color: #2563eb;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .feature-card h3 {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0 0 12px 0;
+            color: #0f172a;
+        }
+
+        .feature-card p {
+            color: #475569;
+            line-height: 1.6;
+            margin: 0;
+            font-size: 16px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px;
+            background-color: #0f172a;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 48px;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+                padding: 0 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="about.html" class="logo">Cubing</a>
+        <div class="nav-links">
+            <a href="about.html" class="active">About</a>
+            <a href="login.html">Log in</a>
+            <a href="register.html" class="btn-login">Sign up</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <h1 class="hero-title">The ultimate dashboard for <span>speedcubers.</span></h1>
+        <p class="hero-subtitle">Elevate your cubing experience with advanced analytics, custom algorithm sets,
+            multiplayer matches, and more—all in one place.</p>
+
+        <div class="hero-actions">
+            <a href="register.html" class="btn-primary">Get Started for Free</a>
+            <a href="login.html" class="btn-secondary">Log into your account</a>
+        </div>
+    </div>
+
+    <div class="previews-section">
+        <div class="section-container">
+            <div class="previews-grid">
+                <!-- Desktop Preview -->
+                <div class="preview-card desktop-preview">
+                    <div class="dashboard-img pc-img"></div>
+                </div>
+
+                <!-- Mobile Preview -->
+                <div class="preview-card mobile-preview">
+                    <div class="dashboard-img mobile-img"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .previews-section {
+            padding: 40px 20px 80px;
+            background: linear-gradient(to bottom, transparent, rgba(16, 185, 129, 0.05));
+        }
+
+        .previews-grid {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .preview-card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .preview-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .desktop-preview {
+            flex: 2.5;
+        }
+
+        .mobile-preview {
+            flex: 1;
+            max-width: 280px;
+        }
+
+        .dashboard-img {
+            width: 100%;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center top;
+            display: block;
+        }
+
+        /* Clean, un-cropped photos that fill the frame */
+        .pc-img {
+            background-image: url('../assets/pc_preview.png') !important;
+            aspect-ratio: 16/10 !important;
+        }
+
+        .mobile-img {
+            background-image: url('../assets/mobile_preview.png') !important;
+            aspect-ratio: 9/19 !important;
+        }
+
+        @media (max-width: 900px) {
+            .previews-grid {
+                flex-direction: column;
+                align-items: center;
+                gap: 30px;
+            }
+
+            .desktop-preview,
+            .mobile-preview {
+                width: 100%;
+                max-width: 600px;
+            }
+
+            .mobile-preview {
+                max-width: 300px;
+            }
+        }
+    </style>
+
+    <div class="info-section">
+        <div class="info-content">
+            <h2>What is Speedcubing?</h2>
+            <p>
+                <a href="https://en.wikipedia.org/wiki/Speedcubing" target="_blank">Speedcubing</a> is the sport of
+                solving a variety of combination puzzles, most notably the 3x3x3 Rubik's Cube, as quickly as possible.
+                For most puzzles, solving involves performing a series of sequences of moves, called
+                <a href="https://en.wikipedia.org/wiki/Optimal_solutions_for_Rubik%27s_Cube" target="_blank">algorithms</a>.
+            </p>
+            <p>
+                The sport has grown into a global phenomenon with thousands of competitions held worldwide by the
+                <a href="https://en.wikipedia.org/wiki/World_Cube_Association" target="_blank">World Cube Association
+                    (WCA)</a>.
+                Cubitor was built to provide cubers of all levels with the tools they need to master their craft, from
+                advanced timers to algorithm trainers.
+            </p>
+        </div>
+    </div>
+
+    <div class="features-section">
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Why use Cubing?</h2>
+                <p>Everything you need to improve your times, track your progress, and connect with other cubers.</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="13" r="8"></circle>
+                            <path d="M12 9v4l2 2"></path>
+                            <path d="M10 3h4"></path>
+                        </svg>
+                    </div>
+                    <h3>Precision Timer</h3>
+                    <p>An advanced, low-latency timer with WCA inspection, manual entry, and detailed session
+                        statistics.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg>
+                    </div>
+                    <h3>In-Depth Analytics</h3>
+                    <p>Track your progression with interactive charts, personal bests, moving averages, and time
+                        distributions.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                        </svg>
+                    </div>
+                    <h3>Algorithm Trainer</h3>
+                    <p>Create custom algorithm sets, view 3D previews, and drill your OLLs and PLLs until they're muscle
+                        memory.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <h3>Community Features</h3>
+                    <p>Add friends, view their profiles, compare stats, and compete on global leaderboards.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                            <line x1="6" y1="12" x2="10" y2="12"></line>
+                            <line x1="8" y1="10" x2="8" y2="14"></line>
+                            <line x1="15" y1="13" x2="15.01" y2="13"></line>
+                            <line x1="18" y1="11" x2="18.01" y2="11"></line>
+                        </svg>
+                    </div>
+                    <h3>Minigames</h3>
+                    <p>Take a break from serious solves and challenge yourself with fun cubing-related minigames.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3>Customizable</h3>
+                    <p>Personalize your experience with themes, 3D visualization settings, and tailored dashboard
+                        widgets.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Open source project built for the speedcubing community.</p>
+    </footer>
+
+</body>
+
+</html>
